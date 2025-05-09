@@ -1,0 +1,96 @@
+✅ 1. Custom User Model
+You created a custom user model to support different roles: Donor, NGO, and Volunteer.
+
+Base Model: Extended AbstractBaseUser and PermissionsMixin.
+
+Fields: email, first_name, user_type, etc.
+
+Roles handled using ENUM/choices (e.g., UserType.choices).
+
+Custom manager: UserManager implemented with create_user and create_superuser.
+
+JWT Authentication is used (handled via djangorestframework-simplejwt).
+
+🔐 Now, your app can securely authenticate users and distinguish between Donor, NGO, Volunteer.
+
+✅ 2. Models for Donations and Requests
+You designed two key models:
+
+🥘 Donation Model
+Created by Donors.
+
+Fields: food_description, quantity, pickup_time, status (default: "Available"), etc.
+
+Linked to a User (Donor).
+
+📦 Request Model
+Created by NGOs for a donation.
+
+Fields: donation, ngo, volunteer (nullable for now), priority, status (Pending by default), requested_at.
+
+Linked to a User (NGO and Volunteer).
+
+Logic ensures only NGOs can create requests, and only for donations that are currently "Available".
+
+✅ 3. Migrations and Schema Adjustments
+Used makemigrations and migrate.
+
+Handled the transition from nullable → non-nullable ngo and volunteer fields using option 2 (ignore nulls for now).
+
+Some earlier test records had null volunteer values, but were handled manually or ignored.
+
+✅ 4. API Endpoints via DRF ViewSets
+You added DRF viewsets for:
+
+🔹 DonationViewSet
+Donors can POST /api/donations/ to create donations.
+
+Anyone can GET them.
+
+🔹 RequestViewSet
+NGOs can POST /api/requests/ to create a request for a donation.
+
+Volunteers can GET all "Pending" requests (to potentially accept one).
+
+Logic in get_queryset filters based on user type.
+
+Also added logic in perform_create() to:
+
+Validate that only NGOs can create requests.
+
+Check the donation is still "Available".
+
+✅ 5. Tested Endpoints in Postman
+You verified via Postman that:
+
+A donation can be created with status = Available.
+
+A request can be made using the donation ID.
+
+Requests are returned correctly when queried by NGO or volunteer depending on their role.
+
+🧠 What’s Working So Far
+Feature	Status
+User registration and login via JWT	✅
+Custom roles (Donor, NGO, Volunteer)	✅
+Donor can create food donations	✅
+NGO can request available donations	✅
+Request model tracks priority, status, NGO, and volunteer	✅
+Permissions: only NGOs can request	✅
+Volunteers can see pending requests	✅
+All tested via Postman	✅
+
+🔜 Suggested Next Steps
+Let me know which of these you'd like to do next:
+
+Volunteer accepts a request → assign themselves as volunteer and mark request as Accepted, donation as In Transit.
+
+Delivery complete flow → mark request as Completed, update donation as Delivered.
+
+Transaction logging between Donor, NGO, and Volunteer.
+
+Add filtering/sorting in list APIs (by status, priority, etc.).
+
+Chat/notification setup via MongoDB integration.
+
+Neo4j-powered route optimization for volunteer pickups.
