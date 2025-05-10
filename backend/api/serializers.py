@@ -37,8 +37,8 @@ class VolunteerSerializer(serializers.ModelSerializer):
 # In serializers.py
 
 class RequestSerializer(serializers.ModelSerializer):
-    ngo = UserSerializer(read_only=True)  # Display full NGO info
-    volunteer = UserSerializer(read_only=True)  # Display full Volunteer info
+    ngo = UserSerializer(read_only=True)
+    volunteer = UserSerializer(read_only=True)
     donation = DonationSerializer(read_only=True)
 
     donation_id = serializers.PrimaryKeyRelatedField(
@@ -57,6 +57,16 @@ class RequestSerializer(serializers.ModelSerializer):
             'requested_at'
         ]
         read_only_fields = ['request_id', 'ngo', 'volunteer', 'donation', 'requested_at']
+
+    def update(self, instance, validated_data):
+        """
+        Allow volunteer assignment in the claim request view.
+        Only 'status' is allowed to be updated here manually.
+        'volunteer' will be set in the view, not via request body.
+        """
+        instance.status = validated_data.get('status', instance.status)
+        instance.save()
+        return instance
         
 
 # Transaction Serializer

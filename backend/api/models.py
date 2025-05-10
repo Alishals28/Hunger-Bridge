@@ -41,8 +41,8 @@ class RequestPriority(models.TextChoices):
 # Request Status ENUM
 class RequestStatus(models.TextChoices):
     PENDING = 'Pending'
-    APPROVED = 'Approved'
-    COMPLETED = 'Completed'
+    CLAIMED = 'Claimed'
+    DELIVERED = 'Delivered'
 
 
 # Users Table
@@ -115,6 +115,8 @@ class NGO(models.Model):
 
 
 # Volunteers Table
+# models.py
+
 class Volunteer(models.Model):
     volunteer_id = models.AutoField(primary_key=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -126,9 +128,6 @@ class Volunteer(models.Model):
     def __str__(self):
         return f"Volunteer {self.user.first_name}"
 
-
-# Requests Table
-# models.py
 
 class Request(models.Model):
     request_id = models.AutoField(primary_key=True)
