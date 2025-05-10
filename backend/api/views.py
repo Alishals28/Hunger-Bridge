@@ -98,7 +98,7 @@ class RequestViewSet(viewsets.ModelViewSet):
         serializer.save(ngo=user)
 
     @action(detail=True, methods=['post'], url_path='claim')
-    def claim(self, request, pk=None):
+    def claim_request(self, request, pk=None):
         user = request.user
 
         if user.user_type != 'Volunteer':
@@ -107,13 +107,36 @@ class RequestViewSet(viewsets.ModelViewSet):
 
         req = self.get_object()
 
-        if req.volunteer is not None:
-            return Response({"detail": "This request has already been claimed."},
+        if req.status != 'Pending':
+            return Response({"detail": "Request is not pending and cannot be claimed."},
                             status=status.HTTP_400_BAD_REQUEST)
 
         req.volunteer = user
-        req.status = 'Accepted'
+        req.status = 'Claimed'
         req.save()
 
         serializer = self.get_serializer(req)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated], url_path='mark-delivered')
+    def mark_delivered(self, request, pk=None):
+        user = request.user
+        req = self.get_object()
+
+        if user != req.volunteer:
+            raise PermissionDenied("Only the assigned volunteer can mark this request as delivered.")
+
+        if req.status != 'Claimed':
+            return Response({"detail": "Request is not in 'Claimed' status."}, status=status.HTTP_400_BAD_REQUEST)
+
+        req.status = 'Delivered'
+        req.save()
+
+        # Optionally update the linked donation status too
+        req.donation.status = 'Delivered'
+        req.donation.save()
+
+        return Response(self.get_serializer(req).data, status=status.HTTP_200_OK)
+
+    
+    
