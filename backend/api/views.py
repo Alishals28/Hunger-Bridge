@@ -15,6 +15,7 @@ from .serializers import (
     RouteSerializer
 )
 from .permissions import IsDonor, IsVolunteer, IsNGO, IsAdminUserType
+from django.utils import timezone
 
 # User ViewSet
 class UserViewSet(viewsets.ModelViewSet):
@@ -80,12 +81,14 @@ class RequestViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        if user.user_type == 'NGO':
-            return Request.objects.filter(ngo=user)
-        elif user.user_type == 'Volunteer':
-            return Request.objects.filter(volunteer=user)
-        return Request.objects.none()
-
+        if self.action == 'list':
+            if user.user_type == 'NGO':
+                return Request.objects.filter(ngo=user)
+            elif user.user_type == 'Volunteer':
+                return Request.objects.filter(volunteer=user)
+            return Request.objects.none()
+        return Request.objects.all()
+    
     def perform_create(self, serializer):
         user = self.request.user
         if user.user_type != 'NGO':
@@ -97,8 +100,15 @@ class RequestViewSet(viewsets.ModelViewSet):
 
         serializer.save(ngo=user)
 
-    @action(detail=True, methods=['post'], url_path='claim')
+    @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated], url_path='claim')
     def claim_request(self, request, pk=None):
+        print("Trying to claim request with ID:", pk)
+        try:
+            req = self.get_object()
+        except Exception as e:
+            print("Error fetching request:", e)
+            raise
+
         user = request.user
 
         if user.user_type != 'Volunteer':
@@ -129,14 +139,26 @@ class RequestViewSet(viewsets.ModelViewSet):
         if req.status != 'Claimed':
             return Response({"detail": "Request is not in 'Claimed' status."}, status=status.HTTP_400_BAD_REQUEST)
 
+        # Update request and donation status
         req.status = 'Delivered'
         req.save()
 
-        # Optionally update the linked donation status too
         req.donation.status = 'Delivered'
         req.donation.save()
 
-        return Response(self.get_serializer(req).data, status=status.HTTP_200_OK)
+        # Get related NGO and Volunteer instances (from their respective models)
+        ngo_instance = NGO.objects.get(user=req.ngo)
+        volunteer_instance = Volunteer.objects.get(user=req.volunteer)
 
+        # Create a Transaction entry
+        Transaction.objects.create(
+            donation=req.donation,
+            volunteer=volunteer_instance,
+            ngo=ngo_instance,
+            pickup_time=req.donation.pickup_time,
+            delivery_time=timezone.now()
+        )
+
+        return Response(self.get_serializer(req).data, status=status.HTTP_200_OK)
     
     
