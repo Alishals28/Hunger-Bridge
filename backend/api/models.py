@@ -14,6 +14,7 @@ class UserRole(models.TextChoices):
 class DonationStatus(models.TextChoices):
     AVAILABLE = 'Available'
     PICKED_UP = 'Picked Up'
+    DELIVERED = 'Delivered'
     CANCELLED = 'Cancelled'
     EXPIRED = 'Expired'
 

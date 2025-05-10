@@ -83,7 +83,7 @@ class RequestViewSet(viewsets.ModelViewSet):
         if user.user_type == 'NGO':
             return Request.objects.filter(ngo=user)
         elif user.user_type == 'Volunteer':
-            return Request.objects.filter(status='Pending')
+            return Request.objects.filter(volunteer=user)
         return Request.objects.none()
 
     def perform_create(self, serializer):
