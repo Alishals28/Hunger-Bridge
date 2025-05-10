@@ -106,6 +106,38 @@ class TransactionViewSet(viewsets.ReadOnlyModelViewSet):  # Only GET operations 
         transaction.save()
         serializer = self.get_serializer(transaction)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    @action(detail=False, methods=['get'], url_path='my-ngo-transactions')
+    def my_ngo_transactions(self, request):
+        user = request.user
+        try:
+            ngo = NGO.objects.get(user=user)
+        except NGO.DoesNotExist:
+            return Response({"detail": "You are not registered as an NGO."}, status=400)
+
+        transactions = Transaction.objects.filter(ngo=ngo)
+        serializer = self.get_serializer(transactions, many=True)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['get'], url_path='my-volunteer-transactions')
+    def my_volunteer_transactions(self, request):
+        user = request.user
+        try:
+            volunteer = Volunteer.objects.get(user=user)
+        except Volunteer.DoesNotExist:
+            return Response({"detail": "You are not registered as a Volunteer."}, status=400)
+
+        transactions = Transaction.objects.filter(volunteer=volunteer)
+        serializer = self.get_serializer(transactions, many=True)
+        return Response(serializer.data)
+    
+    @action(detail=False, methods=['get'], url_path='my-donor-transactions')
+    def my_donor_transactions(self, request):
+        user = request.user
+        donations = Donation.objects.filter(donor=user, status='Delivered')
+        transactions = Transaction.objects.filter(donation__in=donations)
+        serializer = self.get_serializer(transactions, many=True)
+        return Response(serializer.data)
 
 # Route ViewSet
 class RouteViewSet(viewsets.ModelViewSet):
