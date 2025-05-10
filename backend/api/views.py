@@ -62,10 +62,50 @@ class RequestViewSet(viewsets.ModelViewSet):
 
 
 # Transaction ViewSet
-class TransactionViewSet(viewsets.ModelViewSet):
+class TransactionViewSet(viewsets.ReadOnlyModelViewSet):  # Only GET operations for now
     queryset = Transaction.objects.all()
     serializer_class = TransactionSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
+    def get_queryset(self):
+        user = self.request.user
+
+        if user.user_type == 'Volunteer':
+            try:
+                volunteer = Volunteer.objects.get(user=user)
+                return self.queryset.filter(volunteer=volunteer)
+            except Volunteer.DoesNotExist:
+                return Transaction.objects.none()
+
+        elif user.user_type == 'NGO':
+            try:
+                ngo = NGO.objects.get(user=user)
+                return self.queryset.filter(ngo=ngo)
+            except NGO.DoesNotExist:
+                return Transaction.objects.none()
+
+        elif user.is_superuser:
+            return self.queryset  # Admins see all
+
+        return Transaction.objects.none()
+    
+    @action(detail=True, methods=['post'], url_path='add-feedback')
+    def add_feedback(self, request, pk=None):
+        transaction = self.get_object()
+        user = request.user
+
+        # Check if user is the NGO linked to this transaction
+        if not hasattr(user, 'ngo') or transaction.ngo.user != user:
+            raise PermissionDenied("Only the NGO involved in this transaction can add feedback.")
+
+        feedback = request.data.get('feedback')
+        if not feedback:
+            return Response({"detail": "Feedback cannot be empty."}, status=status.HTTP_400_BAD_REQUEST)
+
+        transaction.feedback_given = feedback
+        transaction.save()
+        serializer = self.get_serializer(transaction)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 # Route ViewSet
 class RouteViewSet(viewsets.ModelViewSet):
