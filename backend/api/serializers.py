@@ -81,3 +81,10 @@ class RouteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Route
         fields = '__all__'
+
+# Notification Serializer
+class NotificationSerializer(serializers.Serializer):
+    id = serializers.CharField(read_only=True)
+    user_id = serializers.CharField()
+    message = serializers.CharField()
+    timestamp = serializers.DateTimeField()
