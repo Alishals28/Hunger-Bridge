@@ -43,6 +43,7 @@ class RequestPriority(models.TextChoices):
 class RequestStatus(models.TextChoices):
     PENDING = 'Pending'
     CLAIMED = 'Claimed'
+    IN_TRANSIT = 'In Transit'
     DELIVERED = 'Delivered'
 
 

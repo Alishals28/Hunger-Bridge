@@ -2,7 +2,7 @@ from rest_framework import viewsets, status, permissions
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import PermissionDenied
 from rest_framework import filters
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from .models import User, Donation, NGO, Volunteer, Request, Transaction, Route
 from .serializers import (
@@ -12,10 +12,19 @@ from .serializers import (
     VolunteerSerializer,
     RequestSerializer,
     TransactionSerializer,
-    RouteSerializer
+    RouteSerializer, 
+    NotificationSerializer
 )
 from .permissions import IsDonor, IsVolunteer, IsNGO, IsAdminUserType
 from django.utils import timezone
+from .mongodb import notifications_collection
+from django.conf import settings
+from pymongo import MongoClient
+from bson import ObjectId
+from datetime import datetime
+from django.http import JsonResponse
+from api.utils.notifications import send_notification
+
 
 # User ViewSet
 class UserViewSet(viewsets.ModelViewSet):
@@ -25,14 +34,22 @@ class UserViewSet(viewsets.ModelViewSet):
 
 # Donation ViewSet
 class DonationViewSet(viewsets.ModelViewSet):
-    queryset = Donation.objects.none()  # Needed for router basename resolution
+    queryset = Donation.objects.none()
     serializer_class = DonationSerializer
     permission_classes = [IsAuthenticated & IsDonor]
-    filterset_fields = ['status', 'quantity']  # Add other fields as needed
+    filterset_fields = ['status', 'quantity']
     search_fields = ['food_description', 'donor__first_name', 'donor__email']
 
     def perform_create(self, serializer):
-        serializer.save(donor=self.request.user)
+        donation = serializer.save(donor=self.request.user)
+
+        # 🔔 Send notification to all NGOs about this donation
+        ngos = User.objects.filter(user_type='NGO')
+        for ngo in ngos:
+            send_notification(
+                user_id=ngo.id,
+                message=f"New donation posted by {self.request.user.first_name}: '{donation.food_description}'"
+            )
 
     def get_queryset(self):
         user = self.request.user
@@ -41,7 +58,6 @@ class DonationViewSet(viewsets.ModelViewSet):
         elif user.user_type in ['NGO', 'Volunteer']:
             return Donation.objects.filter(status='Available')
         return Donation.objects.none()
-
 
 # NGO ViewSet
 class NGOViewSet(viewsets.ModelViewSet):
@@ -170,7 +186,13 @@ class RequestViewSet(viewsets.ModelViewSet):
         if donation.status != 'Available':
             raise PermissionDenied("Donation is not available for request.")
 
-        serializer.save(ngo=user)
+        request_instance = serializer.save(ngo=user)
+
+        # ✅ Send notification to donor
+        donor = donation.donor
+        message = f"{user.first_name} (NGO) has requested your donation: '{donation.food_description}'"
+        send_notification(str(donor.id), message)
+        print("Notification sent to donor:", donor.email)
 
     @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated], url_path='claim')
     def claim_request(self, request, pk=None):
@@ -187,50 +209,153 @@ class RequestViewSet(viewsets.ModelViewSet):
             return Response({"detail": "Only volunteers can claim requests."},
                             status=status.HTTP_403_FORBIDDEN)
 
-        req = self.get_object()
-
         if req.status != 'Pending':
             return Response({"detail": "Request is not pending and cannot be claimed."},
                             status=status.HTTP_400_BAD_REQUEST)
 
+        #Assign volunteer and update statuses
         req.volunteer = user
-        req.status = 'Claimed'
+        req.status = 'In Transit'  # NEW
         req.save()
+
+        req.donation.status = 'Picked Up'  # NEW
+        req.donation.save()
+
+        #DEBUG: Check user info before notification
+        # try:
+        #     print("NGO user ID:", req.ngo.user.user_id)
+        #     print("Volunteer name:", user.name)
+        # except Exception as debug_e:
+        #     print("DEBUG ERROR:", debug_e)
+
+        #Send notification to NGO
+        try:
+            request_id = req.request_id  # Use the correct primary key field
+            ngo_user_id = req.ngo.user_id  # Assuming NGO is a OneToOneField to User
+            volunteer_name = user.first_name  # Your User model has first_name
+
+            message = f"Your request (ID: {request_id}) has been claimed by volunteer {volunteer_name}"
+            send_notification(str(ngo_user_id), message)
+            print("Notification sent successfully.")
+        except Exception as notif_error:
+            print("Failed to send notification:", notif_error)
 
         serializer = self.get_serializer(req)
         return Response(serializer.data, status=status.HTTP_200_OK)
-    
+        
     @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated], url_path='mark-delivered')
     def mark_delivered(self, request, pk=None):
         user = request.user
         req = self.get_object()
 
-        if user != req.volunteer:
+        # Ensure the assigned volunteer is making the request
+        if req.volunteer.id != user.id:
             raise PermissionDenied("Only the assigned volunteer can mark this request as delivered.")
 
-        if req.status != 'Claimed':
-            return Response({"detail": "Request is not in 'Claimed' status."}, status=status.HTTP_400_BAD_REQUEST)
+        # ✅ Fix: Check for 'In Transit' instead of 'Claimed'
+        if req.status != 'In Transit':
+            return Response({"detail": "Request must be 'In Transit' to be marked as delivered."},
+                            status=status.HTTP_400_BAD_REQUEST)
 
-        # Update request and donation status
+        # Update statuses
         req.status = 'Delivered'
         req.save()
 
         req.donation.status = 'Delivered'
         req.donation.save()
 
-        # Get related NGO and Volunteer instances (from their respective models)
+        # Resolve NGO and Volunteer instances
         ngo_instance = NGO.objects.get(user=req.ngo)
         volunteer_instance = Volunteer.objects.get(user=req.volunteer)
 
-        # Create a Transaction entry
+        # Create Transaction
+        delivery_time = timezone.now()
         Transaction.objects.create(
             donation=req.donation,
             volunteer=volunteer_instance,
             ngo=ngo_instance,
             pickup_time=req.donation.pickup_time,
-            delivery_time=timezone.now()
+            delivery_time=delivery_time
         )
 
+        # Format timestamp for notification
+        readable_time = delivery_time.strftime("%B %d, %Y at %I:%M %p")
+
+        # Send notification to NGO
+        try:
+            message = f"Your requested donation '{req.donation.food_description}' was delivered by {user.first_name} on {readable_time}."
+            send_notification(str(req.ngo.user_id), message)
+            print("Delivery notification sent to NGO.")
+        except Exception as notif_error:
+            print("Failed to send delivery notification to NGO:", notif_error)
+
+        # Send notification to Donor
+        try:
+            donor = req.donation.donor
+            donor_message = f"Your donation '{req.donation.food_description}' was successfully delivered by {user.first_name} on {readable_time}."
+            send_notification(str(donor.user_id), donor_message)  # 🔧 FIX: use donor.user_id not donor.id if donor is a User
+            print("Delivery notification sent to Donor.")
+        except Exception as notif_error:
+            print("Failed to send delivery notification to Donor:", notif_error)
+
         return Response(self.get_serializer(req).data, status=status.HTTP_200_OK)
-    
-    
+
+# Test Notification Endpoint  
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def test_notification(request):
+    user = request.user
+    notifications_collection.insert_one({
+        "message": "Test notification from API",
+        "user_id": str(user.user_id),
+        "timestamp": timezone.now().isoformat()
+    })
+    return Response({"detail": "Notification logged successfully"})   
+
+# Notification ViewSet
+class NotificationViewSet(viewsets.ViewSet):
+    permission_classes = [IsAuthenticated]
+
+    def list(self, request):
+        user_id = str(request.user.id)  # ✅ Safely cast to string
+
+        print("DEBUG - Authenticated user ID:", user_id)
+
+        # Connect to MongoDB
+        client = MongoClient('mongodb://localhost:27017/')
+        db = client['hungerbridge_db']  # Adjust if your DB is actually 'hungerbridge_db'
+        collection = db['notifications']
+
+        # Fetch and sort notifications by timestamp (descending)
+        notifications = collection.find({"user_id": {"$in": [user_id, int(user_id)]}}).sort("timestamp", -1)
+
+
+        # Manual serialization of MongoDB documents
+        data = []
+        for n in notifications:
+            print("DEBUG - Notification from DB:", n)
+            data.append({
+                "_id": str(n.get("_id")),
+                "user_id": n.get("user_id"),
+                "message": n.get("message"),
+                "timestamp": n.get("timestamp").isoformat() if isinstance(n.get("timestamp"), datetime) else n.get("timestamp")
+            })
+
+        return Response(data)
+        
+# test mongodb connection
+def test_mongo_connection(request):
+    try:
+        client = MongoClient("mongodb://localhost:27017/")
+        db = client["hungerbridge_db"]
+        collection = db["notifications"]
+
+        doc = collection.find_one()
+
+        if doc:
+            return JsonResponse({"status": "success", "sample_doc": str(doc)})
+        else:
+            return JsonResponse({"status": "success", "message": "Connected but collection is empty"})
+
+    except Exception as e:
+        return JsonResponse({"status": "error", "message": str(e)})
