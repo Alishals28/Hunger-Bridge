@@ -1,0 +1,73 @@
+/* Importing Google Font */
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Open Sans', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex: 1; /* Allows content area to grow and take remaining space */
+}
+
+.footer {
+  width: 100%;
+}
+
+.green-band {
+  background-color: #34a853; /* Green band */
+  color: white;
+  padding: 15px; /* Reduced padding */
+  text-align: center;
+}
+
+.footer-content {
+  background-color: white; /* White background */
+  color: #34a853; /* Green text */
+  padding: 15px; /* Reduced padding */
+  text-align: center;
+}
+
+.footer-text {
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.2; /* Reduced line height */
+}
+
+.footer-tagline {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 10px; /* Reduced margin */
+  line-height: 1.2; /* Reduced line height */
+}
+
+.contact-info {
+  margin-top: 10px;
+}
+
+.contact-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 3px 0; /* Reduced margin */
+}
+
+.contact-link {
+  color: #34a853; /* Green text for links */
+  text-decoration: none;
+  margin-left: 8px; /* Reduced margin */
+  font-size: 16px;
+  line-height: 1.2; /* Reduced line height */
+}
+
+.contact-link:hover {
+  color: #ffeb3b; /* Yellow hover effect */
+}
