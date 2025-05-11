@@ -213,22 +213,29 @@ class RequestViewSet(viewsets.ModelViewSet):
             return Response({"detail": "Request is not pending and cannot be claimed."},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        # Assign volunteer and update status
+        #Assign volunteer and update statuses
         req.volunteer = user
-        req.status = 'Claimed'
+        req.status = 'In Transit'  # NEW
         req.save()
 
-        # ✅ DEBUG: Check user info before notification
-        try:
-            print("NGO user ID:", req.ngo.user.user_id)
-            print("Volunteer name:", user.name)
-        except Exception as debug_e:
-            print("DEBUG ERROR:", debug_e)
+        req.donation.status = 'Picked Up'  # NEW
+        req.donation.save()
 
-        # ✅ Send notification to NGO
+        #DEBUG: Check user info before notification
+        # try:
+        #     print("NGO user ID:", req.ngo.user.user_id)
+        #     print("Volunteer name:", user.name)
+        # except Exception as debug_e:
+        #     print("DEBUG ERROR:", debug_e)
+
+        #Send notification to NGO
         try:
-            message = f"Your request (ID: {req.id}) has been claimed by volunteer {user.name}"
-            send_notification(str(req.ngo.user.user_id), message)
+            request_id = req.request_id  # Use the correct primary key field
+            ngo_user_id = req.ngo.user_id  # Assuming NGO is a OneToOneField to User
+            volunteer_name = user.first_name  # Your User model has first_name
+
+            message = f"Your request (ID: {request_id}) has been claimed by volunteer {volunteer_name}"
+            send_notification(str(ngo_user_id), message)
             print("Notification sent successfully.")
         except Exception as notif_error:
             print("Failed to send notification:", notif_error)
@@ -241,23 +248,27 @@ class RequestViewSet(viewsets.ModelViewSet):
         user = request.user
         req = self.get_object()
 
+        # Ensure the assigned volunteer is making the request
         if req.volunteer.id != user.id:
             raise PermissionDenied("Only the assigned volunteer can mark this request as delivered.")
 
-        if req.status != 'Claimed':
-            return Response({"detail": "Request is not in 'Claimed' status."}, status=status.HTTP_400_BAD_REQUEST)
+        # ✅ Fix: Check for 'In Transit' instead of 'Claimed'
+        if req.status != 'In Transit':
+            return Response({"detail": "Request must be 'In Transit' to be marked as delivered."},
+                            status=status.HTTP_400_BAD_REQUEST)
 
-        # Update request and donation status
+        # Update statuses
         req.status = 'Delivered'
         req.save()
 
         req.donation.status = 'Delivered'
         req.donation.save()
 
+        # Resolve NGO and Volunteer instances
         ngo_instance = NGO.objects.get(user=req.ngo)
         volunteer_instance = Volunteer.objects.get(user=req.volunteer)
 
-        # Create a Transaction entry
+        # Create Transaction
         delivery_time = timezone.now()
         Transaction.objects.create(
             donation=req.donation,
@@ -267,10 +278,10 @@ class RequestViewSet(viewsets.ModelViewSet):
             delivery_time=delivery_time
         )
 
-        # Format readable timestamp
+        # Format timestamp for notification
         readable_time = delivery_time.strftime("%B %d, %Y at %I:%M %p")
 
-        # Send Notification to NGO
+        # Send notification to NGO
         try:
             message = f"Your requested donation '{req.donation.food_description}' was delivered by {user.first_name} on {readable_time}."
             send_notification(str(req.ngo.user_id), message)
@@ -278,11 +289,11 @@ class RequestViewSet(viewsets.ModelViewSet):
         except Exception as notif_error:
             print("Failed to send delivery notification to NGO:", notif_error)
 
-        # Send Notification to Donor
+        # Send notification to Donor
         try:
             donor = req.donation.donor
             donor_message = f"Your donation '{req.donation.food_description}' was successfully delivered by {user.first_name} on {readable_time}."
-            send_notification(str(donor.id), donor_message)
+            send_notification(str(donor.user_id), donor_message)  # 🔧 FIX: use donor.user_id not donor.id if donor is a User
             print("Delivery notification sent to Donor.")
         except Exception as notif_error:
             print("Failed to send delivery notification to Donor:", notif_error)
