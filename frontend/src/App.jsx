@@ -1,8 +1,27 @@
-function App() {
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route ,Navigate} from 'react-router-dom';
 
+import NavBar from './Components/NavBar';
+import Post from './pages/posts';
+import AboutUs from './pages/aboutus';
+import Contact from './pages/contactus';
+import Home from './pages/Home';
+
+function App() {
   return (
-    <h1>This is Hunger Bridge</h1>
-  )
+    <>
+    <Router>
+      <NavBar />
+      <Routes>
+        <Route path="/" element={<Navigate to="/home" />} />
+        <Route path="/home" element={<Home />} />
+        <Route path="/post" element={<Post />} />
+        <Route path="/aboutus" element={<AboutUs />} />
+        <Route path="/contact" element={<Contact />} />
+      </Routes>
+    </Router>
+    </>
+  );
 }
 
-export default App
+export default App;

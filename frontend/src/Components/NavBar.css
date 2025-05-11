@@ -1,0 +1,70 @@
+/* Reset default margins and paddings */
+@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+body {
+
+  font-family: 'Open Sans', sans-serif;
+  background-color: #f4f4f4;
+  font-size: large;
+}
+.nav-links{
+      font-family: 'Open Sans', sans-serif;
+        font-size: large;
+        font-weight: bold;
+
+}
+.bridge{
+    font-family: 'Alegreya', serif;
+    font-size:  40px;
+}
+/* Navbar styling */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #ffffff;
+    padding: 20px 40px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Logo (Website Name) */
+.logo {
+    display: flex;
+    align-items: center;
+    font-size: 24px;
+    font-weight: bold;
+    color: #2e7d32; /* Dark green */
+    gap: 10px;
+}
+
+.logo .material-icons {
+    font-size: 28px;
+    color: #2e7d32;
+}
+
+.logo .bridge {
+    color: #43a047; /* Slightly different green for contrast */
+}
+
+/* Navigation links */
+.nav-links {
+    list-style: none;
+    display: flex;
+    gap: 25px;
+}
+
+.nav-links li a {
+    text-decoration: none;
+    color: #388e3c; /* Green shade */
+    font-weight: 600;
+    font-size: 18px;
+    transition: color 0.3s ease;
+}
+
+.nav-links li a:hover {
+    color: #66bb6a; /* Lighter green shade on hover */
+}
