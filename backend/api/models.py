@@ -43,7 +43,7 @@ class RequestPriority(models.TextChoices):
 class RequestStatus(models.TextChoices):
     PENDING = 'Pending'
     CLAIMED = 'Claimed'
-    IN_TRANSIT = 'In Transit'
+    IN_TRANSIT = 'In_Transit'
     DELIVERED = 'Delivered'
 
 
@@ -117,7 +117,6 @@ class NGO(models.Model):
 
 
 # Volunteers Table
-# models.py
 
 class Volunteer(models.Model):
     volunteer_id = models.AutoField(primary_key=True)
@@ -143,6 +142,7 @@ class Request(models.Model):
         blank=True,
         related_name='volunteer_requests'
     )
+    created_at = models.DateTimeField(auto_now_add=True)
 
     # NGO must be provided, so keep it required
     ngo = models.ForeignKey(
@@ -168,6 +168,7 @@ class Transaction(models.Model):
     pickup_time = models.DateTimeField()
     delivery_time = models.DateTimeField()
     feedback_given = models.TextField(null=True, blank=True)
+    request = models.ForeignKey(Request, on_delete=models.CASCADE)
 
     def __str__(self):
         return f"Transaction {self.transaction_id}"
