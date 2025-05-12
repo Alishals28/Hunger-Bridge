@@ -114,7 +114,10 @@ class TransactionViewSet(viewsets.ReadOnlyModelViewSet):  # Only GET operations 
         if transaction.ngo != ngo:
             raise PermissionDenied("You are not authorized to add feedback to this transaction.")
 
-
+        if transaction.feedback_given:
+            return Response({"detail": "Feedback has already been provided and cannot be changed."},
+                        status=status.HTTP_400_BAD_REQUEST)
+        
         feedback = request.data.get('feedback')
         if not feedback:
             return Response({"detail": "Feedback cannot be empty."}, status=status.HTTP_400_BAD_REQUEST)
