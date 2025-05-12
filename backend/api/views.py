@@ -24,7 +24,9 @@ from bson import ObjectId
 from datetime import datetime
 from django.http import JsonResponse
 from api.utils.notifications import send_notification
-
+from rest_framework.filters import SearchFilter, OrderingFilter
+from django_filters.rest_framework import DjangoFilterBackend
+from .filters import RequestFilter
 
 # User ViewSet
 class UserViewSet(viewsets.ModelViewSet):
@@ -70,13 +72,6 @@ class VolunteerViewSet(viewsets.ModelViewSet):
     queryset = Volunteer.objects.all()
     serializer_class = VolunteerSerializer
 
-
-# Request ViewSet
-class RequestViewSet(viewsets.ModelViewSet):
-    queryset = Request.objects.all()
-    serializer_class = RequestSerializer
-
-
 # Transaction ViewSet
 class TransactionViewSet(viewsets.ReadOnlyModelViewSet):  # Only GET operations for now
     queryset = Transaction.objects.all()
@@ -104,15 +99,21 @@ class TransactionViewSet(viewsets.ReadOnlyModelViewSet):  # Only GET operations 
             return self.queryset  # Admins see all
 
         return Transaction.objects.none()
-    
+
     @action(detail=True, methods=['post'], url_path='add-feedback')
     def add_feedback(self, request, pk=None):
         transaction = self.get_object()
         user = request.user
 
-        # Check if user is the NGO linked to this transaction
-        if not hasattr(user, 'ngo') or transaction.ngo.user != user:
-            raise PermissionDenied("Only the NGO involved in this transaction can add feedback.")
+        # Directly compare user to transaction.ngo
+        try:
+            ngo = NGO.objects.get(user=user)
+        except NGO.DoesNotExist:
+            raise PermissionDenied("Only NGOs can add feedback.")
+
+        if transaction.ngo != ngo:
+            raise PermissionDenied("You are not authorized to add feedback to this transaction.")
+
 
         feedback = request.data.get('feedback')
         if not feedback:
@@ -122,7 +123,7 @@ class TransactionViewSet(viewsets.ReadOnlyModelViewSet):  # Only GET operations 
         transaction.save()
         serializer = self.get_serializer(transaction)
         return Response(serializer.data, status=status.HTTP_200_OK)
-    
+
     @action(detail=False, methods=['get'], url_path='my-ngo-transactions')
     def my_ngo_transactions(self, request):
         user = request.user
@@ -146,7 +147,7 @@ class TransactionViewSet(viewsets.ReadOnlyModelViewSet):  # Only GET operations 
         transactions = Transaction.objects.filter(volunteer=volunteer)
         serializer = self.get_serializer(transactions, many=True)
         return Response(serializer.data)
-    
+
     @action(detail=False, methods=['get'], url_path='my-donor-transactions')
     def my_donor_transactions(self, request):
         user = request.user
@@ -166,6 +167,27 @@ class RequestViewSet(viewsets.ModelViewSet):
     queryset = Request.objects.all()
     serializer_class = RequestSerializer
     permission_classes = [IsAuthenticated]
+    filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
+    filterset_class = RequestFilter
+    
+    # These fields will be used in ?status= and ?priority=
+    filterset_fields = ['status', 'priority']
+
+    # Enable sorting by date or priority: ?ordering=-created_at
+    ordering_fields = ['created_at', 'priority']
+
+    # Enable text search (optional): ?search=rice
+    search_fields = [
+        'donation__food_description',
+        'donation__location',
+        'ngo__user__first_name',
+        'ngo__user__last_name',
+        'ngo__organization_name',
+        'volunteer__user__first_name',
+        'volunteer__user__last_name',
+        'volunteer__user__id',
+        'volunteer__preferred_area',
+    ]
 
     def get_queryset(self):
         user = self.request.user
