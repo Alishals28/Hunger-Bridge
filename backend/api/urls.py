@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import UserViewSet, RegisterView, DonationViewSet, NGOViewSet, VolunteerViewSet, RequestViewSet, TransactionViewSet, RouteViewSet,CustomTokenObtainPairView,test_notification, NotificationViewSet
+from .views import UserViewSet,DonationListCreateView, RegisterView, DonationViewSet, NGOViewSet, VolunteerViewSet, RequestViewSet, TransactionViewSet, RouteViewSet,CustomTokenObtainPairView,test_notification, NotificationViewSet
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -30,5 +30,6 @@ urlpatterns += [
     path('test-mongo/', test_mongo_connection, name='test_mongo_connection'),
     path('tokens/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('register/', RegisterView.as_view(), name='register'),
-
+    path('make-donations/', DonationListCreateView.as_view(), name='donation-list-create'),
+    path('make-donations/<int:pk>/', DonationViewSet.as_view({'patch': 'partial_update'}))
 ]

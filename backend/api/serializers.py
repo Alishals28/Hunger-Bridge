@@ -103,7 +103,12 @@ class RequestSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
         
+class DonationSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(source='donation_id', read_only=True)
 
+    class Meta:
+        model = Donation
+        fields = ['id','food_description', 'quantity', 'pickup_time', 'status']  # Include all required fields
 # Transaction Serializer
 class TransactionSerializer(serializers.ModelSerializer):
     class Meta:

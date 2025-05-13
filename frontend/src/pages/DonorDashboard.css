@@ -1,0 +1,369 @@
+.dashboard-container {
+  padding: 2rem;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #f5f7fa;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.dashboard-header h2 {
+  font-size: 1.8rem;
+  color: #333;
+}
+
+.highlighted-name {
+  color: #2e7d32;
+  font-weight: bold;
+}
+
+.logout-button {
+  background-color: #d32f2f;
+  color: white;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.logout-button:hover {
+  background-color: #b71c1c;
+}
+
+.dashboard-actions {
+  margin-bottom: 2rem;
+}
+
+.donate-button {
+  background-color: #2e7d32;
+  color: white;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.donate-button:hover {
+  background-color: #1b5e20;
+}
+
+.donations-list h3 {
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+  color: #444;
+}
+
+.no-donations {
+  font-style: italic;
+  color: #777;
+}
+
+.donation-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.5rem;
+}
+
+.donation-card {
+  background: #fff;
+  border-left: 6px solid #4caf50;
+  padding: 1.2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.donation-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.donation-card h4 {
+  font-size: 1.2rem;
+  margin-bottom: 0.6rem;
+  color: #2e7d32;
+}
+
+.donation-card p {
+  margin: 0.4rem 0;
+  color: #444;
+  font-size: 0.95rem;
+}
+
+.status {
+  padding: 0.2rem 0.5rem;
+  border-radius: 5px;
+  font-weight: bold;
+  color: white;
+}
+
+.status-available {
+  background-color: #4caf50;
+}
+
+.status-picked\ up {
+  background-color: #1976d2;
+}
+
+.status-delivered {
+  background-color: #388e3c;
+}
+
+.status-cancelled {
+  background-color: #f44336;
+}
+
+.status-expired {
+  background-color: #9e9e9e;
+}
+.dashboard-welcome {
+  background: linear-gradient(115deg, #c4d5c9, #ffffff, #a1d1a3);
+  padding: 3rem;
+  padding-top: 70px;
+  border-radius: 20px;
+  margin-bottom: 2rem;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 128, 0, 0.08);
+  transition: transform 0.3s ease;
+  min-height:250px;
+}
+
+.dashboard-welcome:hover {
+  transform: scale(1.01);
+}
+
+.welcome-content {
+  position: relative;
+  text-align: center;
+  z-index: 1;
+}
+
+.welcome-content h1 {
+  font-size: 2.2rem;
+  color: #2e7d32;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.welcome-content h1 span {
+  color: #1b5e20;
+  font-weight: bold;
+}
+
+.welcome-content p {
+  color: #4a7c59;
+  font-size: 1.1rem;
+  margin-bottom: 1.5rem;
+}
+
+.logout-button {
+  background-color: #2e7d32;
+  color: white;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.3s ease;
+}
+
+.logout-button:hover {
+  background-color: #1b5e20;
+}
+.donations-list {
+  padding: 1rem 0;
+}
+
+.donations-list h3 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: #2e7d32;
+}
+
+.donation-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.5rem;
+}
+
+.donation-card {
+  background-color: #f9fefc;
+  border-radius: 16px;
+  padding: 1.2rem;
+  box-shadow: 0 4px 14px rgba(0, 128, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.donation-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 128, 0, 0.15);
+}
+
+.donation-card h4 {
+  font-size: 1.2rem;
+  color: #1b5e20;
+  margin-bottom: 0.4rem;
+}
+
+.status-badge {
+  align-self: flex-start;
+  margin-top: 0.5rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: white;
+  background-color: #9e9e9e;
+}
+
+/* Optional: Color code status */
+.status-available {
+  background-color: #388e3c;
+}
+.status-picked-up {
+  background-color: #1976d2;
+}
+.status-delivered {
+  background-color: #2e7d32;
+}
+.status-cancelled {
+  background-color: #d32f2f;
+}
+.status-expired {
+  background-color: #f57c00;
+}
+.donation-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  padding: 1rem 0;
+}
+
+.donation-card {
+  background: #f9fff9;
+  border: 1px solid #cdeccd;
+  border-radius: 12px;
+  padding: 1rem;
+  transition: transform 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 128, 0, 0.1);
+  position: relative;
+}
+
+.donation-card:hover {
+  transform: translateY(-4px);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.5rem;
+}
+
+.status-icon {
+  font-size: 1.4rem;
+}
+
+.status-icon.available { color: #4caf50; }
+.status-icon.picked-up { color: #2196f3; }
+.status-icon.delivered { color: #2e7d32; }
+.status-icon.cancelled { color: #f44336; }
+.status-icon.expired { color: #ff9800; }
+
+.card-body p {
+  margin: 0.3rem 0;
+  font-size: 0.95rem;
+}
+
+.edit-button {
+  margin-top: 0.5rem;
+  padding: 0.4rem 0.8rem;
+  background-color: #2e7d32;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: background 0.3s ease;
+}
+.card-actions {
+  display: flex;
+  gap: 10px; /* space between buttons */
+  margin-top: 10px;
+  flex-wrap: wrap; /* optional: handles responsiveness */
+}
+
+.edit-button:hover {
+  background-color: #1b5e20;
+}
+/* Save button */
+.save-button {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  font-size: 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-right: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background-color 0.3s ease;
+}
+
+.save-button:hover {
+  background-color: #45a049;
+}
+
+/* Edit button
+.edit-button {
+  background-color: #2196f3;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  font-size: 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background-color 0.3s ease;
+}
+
+.edit-button:disabled {
+  background-color: #b0c4de;
+  cursor: not-allowed;
+}
+
+.edit-button:hover:enabled {
+  background-color: #1e88e5;
+} */
+
+/* Cancel button */
+.cancel-button {
+  background-color: #f44336;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  font-size: 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.cancel-button:hover {
+  background-color: #e53935;
+}

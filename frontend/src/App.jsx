@@ -27,9 +27,13 @@
 
 // export default App;
 import Main from './pages/mainweb' 
+import { BrowserRouter as Router} from 'react-router-dom';
+
 function App(){
   return(
+    <Router>
     <Main/>
+    </Router>
   );
 }
 export default App;

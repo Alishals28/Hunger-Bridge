@@ -18,6 +18,7 @@ from .serializers import (
     RouteSerializer, 
     NotificationSerializer,
     CustomTokenObtainPairSerializer,
+    DonationSerializer,
     TokenObtainPairSerializer
 )
 from .permissions import IsDonor, IsVolunteer, IsNGO, IsAdminUserType
@@ -413,3 +414,24 @@ class RegisterView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class DonationListCreateView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        # List only donations by the logged-in user
+        donations = Donation.objects.filter(donor=request.user).order_by('-posted_at')
+        serializer = DonationSerializer(donations, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        # Create a donation with donor from request.user
+        serializer = DonationSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(donor=request.user)  # donor is not passed from frontend
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class DonationViewSet(viewsets.ModelViewSet):
+    queryset = Donation.objects.all()
+    serializer_class = DonationSerializer

@@ -33,6 +33,8 @@ const Login = () => {
       localStorage.setItem("user_type", data.user_type);
       localStorage.setItem("first_name", data.first_name);
       localStorage.setItem("user_id", data.id);
+      localStorage.setItem("isLoggedIn", true);
+
 
       // Redirect based on role
       switch (data.user_type) {
