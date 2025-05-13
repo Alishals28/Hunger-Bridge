@@ -27,7 +27,7 @@ venv\Scripts\activate   # Windows
 bash
 Copy
 Edit
-pip install -r requirements.txt
+pip install djangorestframework-simplejwt
 4. Create .env for Database Settings (if applicable)
 env
 Copy

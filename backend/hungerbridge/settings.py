@@ -54,6 +54,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'hungerbridge.urls'
@@ -84,7 +85,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'HungerBridge',        # Your database name
         'USER': 'postgres',            # Your PostgreSQL username
-        'PASSWORD': '12345',           # Your PostgreSQL password
+        'PASSWORD': '1234',           # Your PostgreSQL password
         'HOST': 'localhost',           # If your PostgreSQL runs locally
         'PORT': '5432',                # Default PostgreSQL port
     }
@@ -152,3 +153,8 @@ SIMPLE_JWT = {
 
 
 AUTH_USER_MODEL = 'api.User'  # assuming your app is named 'api'
+CORS_ALLOW_ALL_ORIGINS = True  # for dev only!
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]

@@ -1,10 +1,13 @@
 from rest_framework import viewsets, status, permissions
+from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import PermissionDenied
 from rest_framework import filters
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from .models import User, Donation, NGO, Volunteer, Request, Transaction, Route
+from .serializers import RegisterSerializer
+from rest_framework_simplejwt.views import TokenObtainPairView
 from .serializers import (
     UserSerializer,
     DonationSerializer,
@@ -13,7 +16,9 @@ from .serializers import (
     RequestSerializer,
     TransactionSerializer,
     RouteSerializer, 
-    NotificationSerializer
+    NotificationSerializer,
+    CustomTokenObtainPairSerializer,
+    TokenObtainPairSerializer
 )
 from .permissions import IsDonor, IsVolunteer, IsNGO, IsAdminUserType
 from django.utils import timezone
@@ -384,3 +389,27 @@ def test_mongo_connection(request):
 
     except Exception as e:
         return JsonResponse({"status": "error", "message": str(e)})
+
+
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        data['email'] = self.user.email
+        data['user_type'] = self.user.user_type
+        data['first_name'] = self.user.first_name
+        data['id'] = self.user.user_id
+        return data
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
+
+
+
+class RegisterView(APIView):
+    def post(self, request):
+        serializer = RegisterSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

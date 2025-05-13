@@ -1,7 +1,12 @@
 import './NavBar.css';
-import {Link} from 'react-router-dom';
+import {Link,useNavigate} from 'react-router-dom';
 import Button from './Button';
 export default function NavBar(){
+    const navigate = useNavigate(); 
+
+    const handleLogin = () => {
+        navigate('/login'); 
+    };
     return(
         <>
             <nav className="navbar">
@@ -14,9 +19,8 @@ export default function NavBar(){
                     <li><Link to = "/post">Post</Link></li>
                     <li><Link to = "/aboutus">AboutUs</Link></li>
                     <li><Link to = "/contact">ContactUs</Link></li>
-                    <li><Button text="Log in" onClick={()=>{
-                        console.log("HI i am trying to login.")
-                    }}/></li>
+                    <li><Button text="Log in" onClick={handleLogin}/></li>
+                    <li><Button text="Sign up" onClick={() => navigate('/register')} /></li>
                 </ul>
             </nav>
         </>

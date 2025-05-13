@@ -1,6 +1,41 @@
 from rest_framework import serializers
 from .models import User, Donation, NGO, Volunteer, Request, Transaction, Route
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
+
+class RegisterSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True)
+
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'email', 'password', 'phone', 'address', 'user_type']
+
+    def create(self, validated_data):
+        password = validated_data.pop('password')
+        user = User(**validated_data)
+        user.set_password(password)
+        user.save()
+        return user
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+
+        # Add custom claims to JWT token
+        token['user_type'] = user.user_type
+        token['email'] = user.email
+
+        return token
+
+    def validate(self, attrs):
+        data = super().validate(attrs)
+
+        # Add extra user info to the response
+        data['user_type'] = self.user.user_type
+        data['email'] = self.user.email
+
+        return data
 
 # User Serializer
 class UserSerializer(serializers.ModelSerializer):
