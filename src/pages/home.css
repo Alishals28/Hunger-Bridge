@@ -162,12 +162,7 @@
   .card.hidden {
     display: none;
   }
-  footer {
-    background-color: #1a1a1a;
-    color: white;
-    text-align: center;
-    padding: 2rem 1rem;
-  }
+  
   .section-header {
     text-align: center;
   }
