@@ -124,17 +124,15 @@
     margin-bottom: 1rem;
     text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
   }
-  section h2 {
+  .tagline {
   font-family: sans-serif;
-  font-weight: 20;
+  font-weight: 10;
   color: #ffffff;
   font-size: 15.5px;
+  max-width: 600px;
+  margin: 0 auto 1.5rem;
 }
-  .tagline {
-    font-size: 1.1rem;
-    max-width: 600px;
-    margin: 0 auto 1.5rem;
-  }
+ 
   .explore-button a {
   text-decoration: none;
   border: 2px solid #ffffff;
@@ -158,6 +156,7 @@
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 2rem;
+    text-align: center;
   }
   .card {
     background-color: white;
@@ -173,11 +172,59 @@
   .card h2, .card p {
     padding: 1rem;
   }
-  .card.hidden {
-    display: none;
-  }
-  
+ 
   .section-header {
     text-align: center;
   }
   
+  .how-it-works {
+  text-align: center;
+  padding: 3rem 1rem;
+  background-color: #f9f9f9;
+}
+.steps {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+.step {
+  max-width: 250px;
+}
+.card button {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  margin-top: 0.5rem;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.cta-boxes {
+  display: flex;
+  justify-content: space-around;
+  background: #e6f4ea;
+  padding: 2rem 1rem;
+  text-align: center;
+}
+.cta a {
+  display: inline-block;
+  margin-top: 0.5rem;
+  color: white;
+  background-color: #28a745;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  text-decoration: none;
+}
+.stats {
+  text-align: center;
+  padding: 2rem;
+}
+.stat-grid {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+}
+.stat h3 {
+  color: #28a745;
+}
