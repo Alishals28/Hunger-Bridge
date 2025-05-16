@@ -9,17 +9,18 @@ const Home = () => {
 
       <header>
         <video autoPlay muted loop playsInline>
-          <source src="/media/vid.mp4" type="video/mp4" />
+          <source src="/videos/vid.mp4" type="video/mp4" />
           Your browser does not support the video tag.
         </video>
-        <div className="subheading">Explore. Dream. Discover.</div>
+        <div className="subheading">Every Plate Counts</div>
         <section className="tagline">
           <div className="line"></div>
-          <h2>Popular travel blog posts & guides</h2>
+          <h2><p>Every untouched meal has a second chance — and someone out there who needs it. We make the connection happen.</p>
+</h2>
           <div className="line"></div>
         </section>
         <div className="explore-button">
-          <a href="/gallery">Start Exploring</a>
+          <a href="/gallery">Start Donating</a>
         </div>
       </header>
 
