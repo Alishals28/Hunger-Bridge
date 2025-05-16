@@ -26,7 +26,7 @@ const Home = () => {
       <div className="section-header">
         <div className="section-divider"></div>
         <h2>How It Works?</h2>
-        <p>Popular travel blog posts & guides</p>
+        <p>Bridging hunger in 3 simple steps</p>
       </div>
 
       <section className="content">
@@ -46,6 +46,35 @@ const Home = () => {
           <p>Food gets safely delivered to those in need.</p>
         </div>
 
+      </section>
+
+        {/* --- Call to Action Section --- */}
+      <section className="cta-boxes">
+        <div className="cta">
+          <h3>Are You a Donor?</h3>
+          <p>Register and start donating excess food easily.</p>
+          <a href="/register-donor">Start Donating</a>
+        </div>
+        <div className="cta">
+          <h3>NGO or Shelter?</h3>
+          <p>Sign up to receive food from nearby donors.</p>
+          <a href="/register-ngo">Register Now</a>
+        </div>
+        <div className="cta">
+          <h3>Volunteer With Us</h3>
+          <p>Help deliver food and make a difference.</p>
+          <a href="/volunteer">Join the Mission</a>
+        </div>
+      </section>
+
+      {/* Optional: Impact Stats */}
+      <section className="stats">
+        <h2>Our Impact</h2>
+        <div className="stat-grid">
+          <div className="stat"><h3>25,430+</h3><p>Meals Delivered</p></div>
+          <div className="stat"><h3>780+</h3><p>Active Volunteers</p></div>
+          <div className="stat"><h3>62</h3><p>NGO Partners</p></div>
+        </div>
       </section>
 
 
