@@ -67,6 +67,8 @@ const Home = () => {
         <button id="toggleButton">Show More</button>
       </div>
 
+
+// hiiii
       <footer>
         <p>&copy; 2025 Wanderlust Diaries | Travel Blog by Rimsha, Mehreen, Labib</p>
       </footer>
