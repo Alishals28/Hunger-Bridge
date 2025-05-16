@@ -1,0 +1,46 @@
+.about-container {
+  font-family: 'Open Sans', sans-serif;
+  min-height: 100vh;
+  background: #f9f9f9;
+  margin: 0;
+  background-image: url(/images/contactbg.avif);
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.about-hero h1 {
+  font-size: 3rem;
+  margin-bottom: 10px;
+}
+
+.about-hero p {
+  font-size: 1.2rem;
+  font-weight: 300;
+}
+
+.about-content {
+  max-width: 700px;
+  margin: auto;
+  margin-top: 20px;
+  margin-bottom: 2px;
+  background: white;
+  padding: 30px;
+  border-radius: 20px;
+  border:2px solid #2e7d32 ;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.about-content section {
+  margin-bottom: 30px;
+}
+
+.about-content h2 {
+  color: #28a745;
+  margin-bottom: 10px;
+}
+
+.about-content p {
+  font-size: 1rem;
+  color: #444;
+  line-height: 1.6;
+}
