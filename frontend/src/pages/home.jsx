@@ -68,11 +68,11 @@ const Home = () => {
       </div>
 
 
-// hiiii
-      <footer>
+
+    {/*   <footer>
         <p>&copy; 2025 Wanderlust Diaries | Travel Blog by Rimsha, Mehreen, Labib</p>
       </footer>
-
+*/}
       <script src="/js/script.js"></script>
     </>
   );
