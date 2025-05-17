@@ -14,8 +14,12 @@ export default function Donornav(){
                 <span className="material-icons">volunteer_activism</span>
                 <span className="bridge">HungerBridge</span>
                 </div>
+                <div className="nav-links">
+                <Link to="/donor-dashboard" className="donation-link">Dashboard</Link>
+                <Link to="/requests" className="donation-link">Requests</Link>
                 <button className="logout-button" onClick={handleLogout}>Logout</button>
 
+                </div>
         </nav>
         </>
     );

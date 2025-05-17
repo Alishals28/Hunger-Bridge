@@ -12,9 +12,10 @@ import DonorDashboard from './DonorDashboard';
 import MakeDonation from '../Components/MakeDonation';
 import ProtectedRoute from '../Components/ProtectedRoute';
 import Donornav from '../Components/Donornav';
+import Requests from './Request';
 function Main() {
   const location = useLocation();
-  const donorPaths = ['/donor-dashboard', '/make-donations'];
+  const donorPaths = ['/donor-dashboard','/requests', '/make-donations'];
   const showDonorNav = donorPaths.includes(location.pathname);
 
   return (
@@ -32,18 +33,24 @@ function Main() {
     }
   />
   <Route
-    path="/donations"
+    path="/make-donations"
     element={
       <ProtectedRoute allowedUser="Donor">
         <MakeDonation />
       </ProtectedRoute>
     }
   />
-        {/* <Route path="/ngo-dashboard" element={
-          userType === 'NGO' ? <NGODashboard /> : <Navigate to="/" />
-        } /> */}
+  <Route
+    path="/requests"
+    element={
+      <ProtectedRoute allowedUser="Donor">
+        <Requests />
+      </ProtectedRoute>
+    }
+  />
         <Route path="/donor-dashboard" element={<DonorDashboard />} />
         <Route path="/make-donations" element={<MakeDonation />} />
+        <Route path="/requests" element={<Requests />} />
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
         <Route path="/" element={<Navigate to="/home" />} />

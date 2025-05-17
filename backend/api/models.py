@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.conf import settings
+from django.core.exceptions import ValidationError
 
 # User Role ENUM
 class UserRole(models.TextChoices):
@@ -106,7 +107,7 @@ class Donation(models.Model):
 # NGOs Table
 class NGO(models.Model):
     ngo_id = models.AutoField(primary_key=True)
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='ngo')
     organization_name = models.CharField(max_length=100)
     license_number = models.CharField(max_length=50)
     verification_status = models.CharField(
@@ -123,7 +124,7 @@ class NGO(models.Model):
 
 class Volunteer(models.Model):
     volunteer_id = models.AutoField(primary_key=True)
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='volunteer')
     availability_status = models.CharField(
         max_length=20, choices=AvailabilityStatus.choices
     )
@@ -137,8 +138,6 @@ class Volunteer(models.Model):
 class Request(models.Model):
     request_id = models.AutoField(primary_key=True)
     donation = models.ForeignKey(Donation, on_delete=models.CASCADE)
-
-    # Allow volunteer to be null and blank
     volunteer = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
@@ -146,19 +145,25 @@ class Request(models.Model):
         blank=True,
         related_name='volunteer_requests'
     )
-    created_at = models.DateTimeField(auto_now_add=True)
 
-    # NGO must be provided, so keep it required
     ngo = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,  # or CASCADE if you want deletion to cascade
+        null=True,
+        blank=True,
         related_name='ngo_requests'
     )
-
+    
     priority = models.CharField(max_length=20, choices=RequestPriority.choices)
     status = models.CharField(max_length=20, choices=RequestStatus.choices)
     requested_at = models.DateTimeField(auto_now_add=True)
+    def clean(self):
+        if not self.volunteer and not self.ngo:
+            raise ValidationError("At least one of volunteer or ngo must be set.")
 
+    def save(self, *args, **kwargs):
+        self.full_clean()  # calls clean()
+        super().save(*args, **kwargs)
     def __str__(self):
         return f"Request {self.request_id}"
 

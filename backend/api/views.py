@@ -1,12 +1,14 @@
-from rest_framework import viewsets, status, permissions
+from rest_framework import viewsets,permissions, status,generics
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import PermissionDenied
 from rest_framework import filters
+from rest_framework.response import Response
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from .models import User, Donation, NGO, Volunteer, Request, Transaction, Route
 from .serializers import RegisterSerializer
+import logging
 from rest_framework_simplejwt.views import TokenObtainPairView
 from .serializers import (
     UserSerializer,
@@ -352,8 +354,13 @@ class RequestViewSet(viewsets.ModelViewSet):
                 return Request.objects.filter(ngo=user)
             elif user.user_type == 'Volunteer':
                 return Request.objects.filter(volunteer=user)
-            return Request.objects.none()
+            elif user.user_type == 'Donor':
+                # Show only requests related to the donor's donations
+                return Request.objects.filter(donation__donor=user)
+            else:
+                return Request.objects.none()
         return Request.objects.all()
+
     
     def perform_create(self, serializer):
         user = self.request.user
@@ -583,6 +590,7 @@ def test_mongo_connection(request):
         db = client["hungerbridge_db"]
         collection = db["notifications"]
 
+
         doc = collection.find_one()
 
         if doc:
@@ -609,3 +617,27 @@ def test_neo4j_connection(request):
 
     except Exception as e:
         return JsonResponse({"success": False, "error": str(e)})
+
+class DonationViewSet(viewsets.ModelViewSet):
+    queryset = Donation.objects.all()
+    serializer_class = DonationSerializer
+# class RequestListView(generics.ListAPIView):
+#     serializer_class = Request_Serializer
+#     permission_classes = [IsAuthenticated]
+#     pagination_class = None
+
+#     def get_queryset(self):
+#         queryset = Request.objects.all()
+#         print(f"Queryset count: {queryset.count()}")  # Should print non-zero if data exists
+#         return queryset
+
+
+
+
+
+
+
+
+
+
+

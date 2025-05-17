@@ -71,6 +71,45 @@ class VolunteerSerializer(serializers.ModelSerializer):
 # Request Serializer
 # In serializers.py
 
+# class RequestSerializer(serializers.ModelSerializer):
+#     ngo = UserSerializer(read_only=True)
+#     volunteer = UserSerializer(read_only=True)
+#     donation = DonationSerializer(read_only=True)
+
+#     donation_id = serializers.PrimaryKeyRelatedField(
+#         queryset=Donation.objects.all(), write_only=True, source='donation'
+#     )
+
+#     class Meta:
+#         model = Request
+#         fields = [
+#             'request_id',
+#             'donation', 'donation_id',
+#             'ngo',
+#             'volunteer',
+#             'priority',
+#             'status',
+#             'requested_at'
+#         ]
+#         read_only_fields = ['request_id', 'ngo', 'volunteer', 'donation', 'requested_at']
+
+#     def update(self, instance, validated_data):
+#         """
+#         Allow volunteer assignment in the claim request view.
+#         Only 'status' is allowed to be updated here manually.
+#         'volunteer' will be set in the view, not via request body.
+#         """
+#         instance.status = validated_data.get('status', instance.status)
+#         instance.save()
+#         return instance
+
+
+class DonationSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(source='donation_id', read_only=True)
+
+    class Meta:
+        model = Donation
+        fields = ['id','food_description', 'quantity', 'pickup_time', 'status']  # Include all required fields
 class RequestSerializer(serializers.ModelSerializer):
     ngo = UserSerializer(read_only=True)
     volunteer = UserSerializer(read_only=True)
@@ -79,6 +118,10 @@ class RequestSerializer(serializers.ModelSerializer):
     donation_id = serializers.PrimaryKeyRelatedField(
         queryset=Donation.objects.all(), write_only=True, source='donation'
     )
+
+    # New fields:
+    food_description = serializers.SerializerMethodField()
+    volunteer_or_ngo_name = serializers.SerializerMethodField()
 
     class Meta:
         model = Request
@@ -89,9 +132,30 @@ class RequestSerializer(serializers.ModelSerializer):
             'volunteer',
             'priority',
             'status',
-            'requested_at'
+            'requested_at',
+            'food_description',
+            'volunteer_or_ngo_name',
         ]
-        read_only_fields = ['request_id', 'ngo', 'volunteer', 'donation', 'requested_at']
+        read_only_fields = ['request_id', 'ngo', 'volunteer', 'donation', 'requested_at', 'food_description', 'volunteer_or_ngo_name']
+
+    def get_food_description(self, obj):
+        return obj.donation.food_description if obj.donation else None
+
+    def get_volunteer_or_ngo_name(self, obj):
+        if obj.volunteer:
+            first = obj.volunteer.first_name or ""
+            last = obj.volunteer.last_name or ""
+            full_name = f"{first} {last}".strip()
+            return full_name if full_name else None
+        
+        if obj.ngo:
+            # Assuming 'first_name' and 'last_name' represent NGO name, else adjust field
+            first = obj.ngo.first_name or ""
+            last = obj.ngo.last_name or ""
+            full_name = f"{first} {last}".strip()
+            return full_name if full_name else None
+        
+        return None
 
     def update(self, instance, validated_data):
         """
@@ -102,13 +166,7 @@ class RequestSerializer(serializers.ModelSerializer):
         instance.status = validated_data.get('status', instance.status)
         instance.save()
         return instance
-        
-class DonationSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField(source='donation_id', read_only=True)
 
-    class Meta:
-        model = Donation
-        fields = ['id','food_description', 'quantity', 'pickup_time', 'status']  # Include all required fields
 # Transaction Serializer
 class TransactionSerializer(serializers.ModelSerializer):
     class Meta:
