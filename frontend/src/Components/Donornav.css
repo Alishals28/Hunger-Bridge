@@ -44,3 +44,21 @@
   background-color: #67d56d;
   color: white;
 }
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-left: auto;
+  padding-right: 20px;
+}
+
+.donation-link {
+  color: green;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.donation-link:hover {
+  color: rgb(115, 198, 115);
+}

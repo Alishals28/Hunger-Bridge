@@ -150,13 +150,13 @@ REST_FRAMEWORK = {
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
-    'USER_ID_FIELD': 'user_id',  # <- this is the key change
+    'USER_ID_FIELD': 'user_id', 
     'USER_ID_CLAIM': 'user_id',  
 }
 
 
-AUTH_USER_MODEL = 'api.User'  # assuming your app is named 'api'
-CORS_ALLOW_ALL_ORIGINS = True  # for dev only!
+AUTH_USER_MODEL = 'api.User'  
+CORS_ALLOW_ALL_ORIGINS = True  
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
