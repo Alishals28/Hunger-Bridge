@@ -98,6 +98,7 @@ class Donation(models.Model):
     pickup_time = models.DateTimeField()
     status = models.CharField(max_length=20, choices=DonationStatus.choices)
     posted_at = models.DateTimeField(auto_now_add=True)
+    pickup_location = models.CharField(max_length=500, default="Unknown")  
 
     def __str__(self):
         return f"Donation {self.donation_id} by {self.donor.first_name}"
@@ -112,6 +113,8 @@ class NGO(models.Model):
     verification_status = models.CharField(
         max_length=20, choices=VerificationStatus.choices, default=VerificationStatus.NOT_VERIFIED
     )
+    ngo_location = models.CharField(max_length=500, default="Unknown")
+
 
     def __str__(self):
         return self.organization_name
@@ -126,6 +129,7 @@ class Volunteer(models.Model):
         max_length=20, choices=AvailabilityStatus.choices
     )
     preferred_area = models.CharField(max_length=500)
+    current_location = models.CharField(max_length=500, blank=True, null=True, default="Unknown")
 
     def __str__(self):
         return f"Volunteer {self.user.first_name}"

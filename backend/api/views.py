@@ -35,6 +35,9 @@ from api.utils.notifications import send_notification
 from rest_framework.filters import SearchFilter, OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from .filters import RequestFilter
+from api.utils.neo4j_handler import Neo4jHandler
+from neo4j import GraphDatabase
+from api.utils.geocoding import geocode_location
 
 # User ViewSet
 class UserViewSet(viewsets.ModelViewSet):
@@ -73,6 +76,13 @@ class DonationViewSet(viewsets.ModelViewSet):
 class NGOViewSet(viewsets.ModelViewSet):
     queryset = NGO.objects.all()
     serializer_class = NGO_Serializer
+    
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+    
+    def update(self, request, *args, **kwargs):
+        kwargs['partial'] = True  # Force partial update for PATCH
+        return super().update(request, *args, **kwargs)
 
 
 # Volunteer ViewSet
@@ -171,7 +181,144 @@ class TransactionViewSet(viewsets.ReadOnlyModelViewSet):  # Only GET operations 
 class RouteViewSet(viewsets.ModelViewSet):
     queryset = Route.objects.all()
     serializer_class = RouteSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    @action(detail=False, methods=['post'], url_path='generate-route')
+    def generate_route(self, request):
+        volunteer_id = request.data.get('volunteer_id')
+        donation_id = request.data.get('donation_id')
+        ngo_id = request.data.get('ngo_id')
+        donor_location = request.data.get('donor_location')
+        donor_location = donor_location.strip()
+        ngo_location = request.data.get('ngo_location')
+        ngo_location = ngo_location.strip()
+        print("Donor location:", donor_location)
+        print("NGO location:", ngo_location)
+        donor_lat, donor_lon = geocode_location(donor_location)
+        ngo_lat, ngo_lon = geocode_location(ngo_location)
+        print("GEO donor:", donor_lat, donor_lon, "GEO ngo:", ngo_lat, ngo_lon)
+        
+
+        if not all([volunteer_id, donation_id, ngo_id, donor_location, ngo_location]):
+            return Response({'detail': 'All fields are required.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if None in [donor_lat, donor_lon, ngo_lat, ngo_lon]:
+            return Response({"detail": "Could not geocode one or more locations."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Check if volunteer, donation, and NGO exist
+        try:
+            volunteer = Volunteer.objects.get(pk=volunteer_id)
+            donation = Donation.objects.get(pk=donation_id)
+            ngo = NGO.objects.get(pk=ngo_id)
+        except (Volunteer.DoesNotExist, Donation.DoesNotExist, NGO.DoesNotExist):
+            return Response({"detail": "Invalid volunteer, donation, or NGO ID."}, status=status.HTTP_400_BAD_REQUEST)
+
+        neo = None
+        try:
+            neo = Neo4jHandler()
+
+            # Create graph nodes and relationships
+            create_query = """
+            MERGE (donorLoc:Location {name: $donor_location})
+            SET donorLoc.latitude = $donor_lat, donorLoc.longitude = $donor_lon
+            MERGE (ngoLoc:Location {name: $ngo_location})
+            SET ngoLoc.latitude = $ngo_lat, ngoLoc.longitude = $ngo_lon
+            MERGE (d:Donor {id: $donation_id})
+            MERGE (n:NGO {id: $ngo_id})
+            MERGE (d)-[:LOCATED_AT]->(donorLoc)
+            MERGE (n)-[:LOCATED_AT]->(ngoLoc)
+            MERGE (donorLoc)-[r:CAN_DELIVER_TO]->(ngoLoc)
+            WITH donorLoc, ngoLoc, d, n, r,
+                point({latitude: $donor_lat, longitude: $donor_lon}) AS p1,
+                point({latitude: $ngo_lat, longitude: $ngo_lon}) AS p2
+            SET r.distance = point.distance(p1, p2)
+            """
+            # Create nodes and relationships in Neo4j            
+            neo.run_query(create_query, {
+                "donor_location": donor_location,
+                "ngo_location": ngo_location,
+                "donation_id": donation_id,
+                "ngo_id": ngo_id,
+                "donor_lat": donor_lat,
+                "donor_lon": donor_lon,
+                "ngo_lat": ngo_lat,
+                "ngo_lon": ngo_lon,
+            })
+
+            # Get shortest path
+            path_query = """
+            MATCH (start:Location {name: $donor_location}),
+                  (end:Location {name: $ngo_location}),
+                  path = shortestPath((start)-[:CAN_DELIVER_TO*..5]->(end))
+            WITH path, 
+                    reduce(total = 0.0, r in relationships(path) | total + coalesce(r.distance, 0.0)) / 1000 AS total_distance
+            RETURN path, total_distance
+            """
+
+            result = neo.run_query(path_query, {
+                "donor_location": donor_location,
+                "ngo_location": ngo_location,
+            })
+            print("Neo4j path result:", result)
+
+        finally:
+            if neo:
+                neo.close()
+
+        if not result:
+            return Response({"detail": "No route found"}, status=404)
+
+         # Format route path into readable format
+        try:
+            path_items = result[0]['path']
+            path_names = [item['name'] for item in path_items if isinstance(item, dict)]
+            total_distance = result[0]['total_distance']
+        except Exception:
+            path_names = ["donor_location", "ngo_location"]
+            total_distance = None
+
+        # Store route in DB
+        route = Route.objects.create(
+            volunteer_id=volunteer_id,
+            donation_id=donation_id,
+            ngo_id=ngo_id,
+            donor_location=donor_location,
+            ngo_location=ngo_location,
+            optimized_route_data={
+                "path": path_names,
+                "distance_km": total_distance  
+            }
+        )
+        return Response(RouteSerializer(route).data, status=status.HTTP_201_CREATED)
     
+    @action(detail=False, methods=['get'], url_path='shortest-route')
+    def get_shortest_route(self, request):
+        neo = None
+        try:
+            neo = Neo4jHandler()
+            query = """
+            MATCH (start:Location)-[r:CAN_DELIVER_TO]->(end:Location)
+            RETURN start.name AS from, end.name AS to, r.distance AS dist
+            ORDER BY dist ASC
+            LIMIT 1
+            """
+            result = neo.run_query(query)
+
+            if not result:
+                return Response({"detail": "No routes found"}, status=404)
+
+            record = result[0]
+            return Response({
+                "from": record["from"],
+                "to": record["to"],
+                "distance_km": record["dist"] / 1000 if record["dist"] is not None else None
+            })
+
+        except Exception as e:
+            return Response({"detail": str(e)}, status=500)
+        finally:
+            if neo:
+                neo.close()
     
 # Request ViewSet
 class RequestViewSet(viewsets.ModelViewSet):
@@ -253,7 +400,7 @@ class RequestViewSet(viewsets.ModelViewSet):
 
         #Assign volunteer and update statuses
         req.volunteer = user
-        req.status = 'In Transit'  # NEW
+        req.status = 'Claimed'  # NEW
         req.save()
 
         req.donation.status = 'Picked Up'  # NEW
@@ -280,6 +427,21 @@ class RequestViewSet(viewsets.ModelViewSet):
 
         serializer = self.get_serializer(req)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated], url_path='mark-in-transit')
+    def mark_in_transit(self, request, pk=None):
+        req = self.get_object()
+        user = request.user
+
+        if request.user != req.volunteer:
+            return Response({"detail": "Only the assigned volunteer can mark this request as in transit."}, status=status.HTTP_403_FORBIDDEN)
+
+        if req.status != 'Claimed':
+            return Response({"detail": "Request must be in 'Claimed' status to be marked as In Transit."}, status=status.HTTP_400_BAD_REQUEST)
+
+        req.status = 'In_Transit'
+        req.save()
+        return Response(self.get_serializer(req).data, status=status.HTTP_200_OK)
         
     @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated], url_path='mark-delivered')
     def mark_delivered(self, request, pk=None):
@@ -291,7 +453,7 @@ class RequestViewSet(viewsets.ModelViewSet):
             raise PermissionDenied("Only the assigned volunteer can mark this request as delivered.")
 
         # ✅ Fix: Check for 'In Transit' instead of 'Claimed'
-        if req.status != 'In Transit':
+        if req.status != 'In_Transit':
             return Response({"detail": "Request must be 'In Transit' to be marked as delivered."},
                             status=status.HTTP_400_BAD_REQUEST)
 
@@ -309,6 +471,7 @@ class RequestViewSet(viewsets.ModelViewSet):
         # Create Transaction
         delivery_time = timezone.now()
         Transaction.objects.create(
+            request=req,
             donation=req.donation,
             volunteer=volunteer_instance,
             ngo=ngo_instance,
@@ -381,25 +544,6 @@ class NotificationViewSet(viewsets.ViewSet):
 
         return Response(data)
         
-# test mongodb connection
-def test_mongo_connection(request):
-    try:
-        client = MongoClient("mongodb://localhost:27017/")
-        db = client["hungerbridge_db"]
-        collection = db["notifications"]
-
-        doc = collection.find_one()
-
-        if doc:
-            return JsonResponse({"status": "success", "sample_doc": str(doc)})
-        else:
-            return JsonResponse({"status": "success", "message": "Connected but collection is empty"})
-
-    except Exception as e:
-        return JsonResponse({"status": "error", "message": str(e)})
-
-
-
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
         data = super().validate(attrs)
@@ -438,6 +582,41 @@ class DonationListCreateView(APIView):
             serializer.save(donor=request.user)  # donor is not passed from frontend
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+# test mongodb connection
+def test_mongo_connection(request):
+    try:
+        client = MongoClient("mongodb://localhost:27017/")
+        db = client["hungerbridge_db"]
+        collection = db["notifications"]
+
+
+        doc = collection.find_one()
+
+        if doc:
+            return JsonResponse({"status": "success", "sample_doc": str(doc)})
+        else:
+            return JsonResponse({"status": "success", "message": "Connected but collection is empty"})
+
+    except Exception as e:
+        return JsonResponse({"status": "error", "message": str(e)})
+
+# test neo4j connection
+def test_neo4j_connection(request):
+    try:
+        driver = GraphDatabase.driver(
+            settings.NEO4J_URI,
+            auth=(settings.NEO4J_USER, settings.NEO4J_PASSWORD)
+        )
+
+        with driver.session() as session:
+            result = session.run("RETURN 'Neo4j connected successfully!' AS message")
+            message = result.single()["message"]
+
+        return JsonResponse({"success": True, "message": message})
+
+    except Exception as e:
+        return JsonResponse({"success": False, "error": str(e)})
 
 class DonationViewSet(viewsets.ModelViewSet):
     queryset = Donation.objects.all()
@@ -451,6 +630,7 @@ class DonationViewSet(viewsets.ModelViewSet):
 #         queryset = Request.objects.all()
 #         print(f"Queryset count: {queryset.count()}")  # Should print non-zero if data exists
 #         return queryset
+
 
 
 
