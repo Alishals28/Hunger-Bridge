@@ -58,7 +58,6 @@ const Post=() => {
     const img_url ="/images/posts.avif";
     return (
     <>
-    <Header title={"Posts"}  imageSrc={img_url}/>
     <div className="posts-div">
     {donations.map((donation, index) => (
           <PostCard key={index} donation={donation} />
