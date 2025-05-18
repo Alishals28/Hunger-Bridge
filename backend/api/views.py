@@ -50,7 +50,7 @@ class UserViewSet(viewsets.ModelViewSet):
 class DonationViewSet(viewsets.ModelViewSet):
     queryset = Donation.objects.none()
     serializer_class = DonationSerializer
-    permission_classes = [IsAuthenticated & IsDonor]
+    permission_classes = [IsAuthenticated]
     filterset_fields = ['status', 'quantity']
     search_fields = ['food_description', 'donor__first_name', 'donor__email']
 
@@ -491,6 +491,13 @@ class RequestViewSet(viewsets.ModelViewSet):
         except Exception as notif_error:
             print("Failed to send delivery notification to NGO:", notif_error)
 
+
+
+
+
+
+
+
         # Send notification to Donor
         try:
             donor = req.donation.donor
@@ -620,9 +627,9 @@ def test_neo4j_connection(request):
     except Exception as e:
         return JsonResponse({"success": False, "error": str(e)})
 
-class DonationViewSet(viewsets.ModelViewSet):
-    queryset = Donation.objects.all()
-    serializer_class = DonationSerializer
+# class DonationViewSet(viewsets.ModelViewSet):
+#     queryset = Donation.objects.all()
+#     serializer_class = DonationSerializer
 # class RequestListView(generics.ListAPIView):
 #     serializer_class = Request_Serializer
 #     permission_classes = [IsAuthenticated]

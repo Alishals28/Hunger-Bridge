@@ -27,13 +27,13 @@ export default function Requests() {
   try {
     // Make PATCH/PUT request to update status to 'Completed' (or 'Approved' if you want)
     await axios.patch(`http://localhost:8000/api/requests/${request_id}/`, 
-      { status: 'Completed' },
+      { status: 'Claimed' },
       { headers: { Authorization: `Bearer ${token}` } }
     );
 
     // Update local state after successful update
     const updated = requests.map((req) =>
-      req.request_id === request_id ? { ...req, status: 'Completed' } : req
+      req.request_id === request_id ? { ...req, status: 'Claimed' } : req
     );
 
     setRequests(updated);
@@ -68,8 +68,8 @@ const handleReject = async (request_id) => {
 };
 
 
-  const pendingRequests = requests.filter((req) => req.status !== 'Completed');
-  const completedRequests = requests.filter((req) => req.status === 'Completed');
+  const pendingRequests = requests.filter((req) => req.status !== 'Claimed');
+  const completedRequests = requests.filter((req) => req.status === 'Claimed');
 
   return (
   <div className="requests-container">
