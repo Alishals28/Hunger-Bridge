@@ -46,6 +46,7 @@ const Home = () => {
           <p>Food gets safely delivered to those in need.</p>
         </div>
 
+
       </section>
 
         {/* --- Call to Action Section --- */}

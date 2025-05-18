@@ -51,6 +51,7 @@ class DonationViewSet(viewsets.ModelViewSet):
     queryset = Donation.objects.none()
     serializer_class = DonationSerializer
     fields = '__all__'
+    # permission_classes = [IsAuthenticated]
     permission_classes = [AllowAny]
     filterset_fields = ['status', 'quantity']
     search_fields = ['food_description', 'donor__first_name', 'donor__email']
@@ -578,7 +579,9 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 class RegisterView(APIView):
     permission_classes = [AllowAny]
     def post(self, request):
+
         serializer = RegisterSerializer(data=request.data)
+        permission_classes=[AllowAny]
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)

@@ -85,7 +85,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'HungerBridge',        # Your database name
         'USER': 'postgres',            # Your PostgreSQL username
-        'PASSWORD': '1234',           # Your PostgreSQL password
+        'PASSWORD': 'rimsha',           # Your PostgreSQL password
         'HOST': 'localhost',           # If your PostgreSQL runs locally
         'PORT': '5432',                # Default PostgreSQL port
     }
