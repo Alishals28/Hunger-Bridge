@@ -47,6 +47,7 @@ class UserSerializer(serializers.ModelSerializer):
 # Donation Serializer
 class DonationSerializer(serializers.ModelSerializer):
     donor = UserSerializer(read_only=True)  # Nested user info
+    id = serializers.IntegerField(source='donation_id', read_only=True)
 
     class Meta:
         model = Donation
