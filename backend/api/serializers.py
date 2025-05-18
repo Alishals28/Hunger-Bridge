@@ -110,6 +110,7 @@ class DonationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Donation
         fields = ['id','food_description', 'quantity', 'pickup_time', 'status']  # Include all required fields
+        
 class RequestSerializer(serializers.ModelSerializer):
     ngo = UserSerializer(read_only=True)
     volunteer = UserSerializer(read_only=True)
@@ -122,6 +123,10 @@ class RequestSerializer(serializers.ModelSerializer):
     # New fields:
     food_description = serializers.SerializerMethodField()
     volunteer_or_ngo_name = serializers.SerializerMethodField()
+    request_description = serializers.SerializerMethodField()
+    donation_description = serializers.SerializerMethodField()
+    ngo_name = serializers.SerializerMethodField()
+    volunteer_name = serializers.SerializerMethodField()
 
     class Meta:
         model = Request
@@ -133,13 +138,27 @@ class RequestSerializer(serializers.ModelSerializer):
             'priority',
             'status',
             'requested_at',
+            'request_description',
+            'donation_description',
+            'ngo_name',
+            'volunteer_name',
             'food_description',
             'volunteer_or_ngo_name',
         ]
-        read_only_fields = ['request_id', 'ngo', 'volunteer', 'donation', 'requested_at', 'food_description', 'volunteer_or_ngo_name']
+        read_only_fields = ['request_id', 'ngo', 'volunteer', 'donation', 'requested_at', 'request_description','donation_description','ngo_name','volunteer_name','food_description', 'volunteer_or_ngo_name']
 
     def get_food_description(self, obj):
         return obj.donation.food_description if obj.donation else None
+    
+    def get_ngo_name(self, obj):
+        if obj.ngo:
+            return f"{obj.ngo.first_name} {obj.ngo.last_name}".strip()
+        return None
+
+    def get_volunteer_name(self, obj):
+        if obj.volunteer:
+            return f"{obj.volunteer.first_name} {obj.volunteer.last_name}".strip()
+        return None
 
     def get_volunteer_or_ngo_name(self, obj):
         if obj.volunteer:
