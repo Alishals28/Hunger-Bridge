@@ -138,6 +138,7 @@ class Volunteer(models.Model):
 class Request(models.Model):
     request_id = models.AutoField(primary_key=True)
     donation = models.ForeignKey(Donation, on_delete=models.CASCADE)
+    request_description = models.TextField(null=True, blank=True)
     volunteer = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,

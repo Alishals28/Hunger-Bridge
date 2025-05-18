@@ -46,13 +46,30 @@ html, body {
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
-.main{
-    background-image: url('/images/contactbg.avif');
-    background-repeat: no-repeat;
-    background-size: cover;
-    min-height: 100vh;
-    margin-top: 0;
-    padding: 5%;
+.contactbox {
+  width: 100%;
+  max-width: 700px; /* Increased width */
+  padding: 20px;
+}
+.contact-form {
+  width: 100%;
+  padding: 60px; /* Increased padding */
+  background-color: #fff;
+  border-radius: 12px;
+  font-family: 'Open Sans', sans-serif;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+.main {
+  background-image: url('/images/contactbg.avif');
+  background-repeat: no-repeat;
+  background-size: cover;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  box-sizing: border-box;
 }
 .contact-form button:hover {
   background-color: #218838;

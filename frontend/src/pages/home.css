@@ -30,6 +30,10 @@
     font-weight: bold;
     text-transform: uppercase;
   }
+  body {
+  padding-top: 60px; /* Adjust to match your navbar height */
+}
+
   .logo img {
     height: 36px;
     width: 36px;
@@ -87,7 +91,7 @@
     /* background-color: #0bb01b;
     color: #fff;
   } */
-  header {
+  .head {
     position: relative;
     height: 100vh;
     display: flex;

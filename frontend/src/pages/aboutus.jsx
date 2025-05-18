@@ -6,15 +6,13 @@ const AboutUs = () => {
   return (
 
     <div className="about-container">
-      {/* <div className="about-hero">
+      <div className="about-hero">
         <h1>About HungerBridge</h1>
-        <p>Connecting hearts. Bridging hunger.</p>
-      </div>
-    */}
-        <Header title="About Hunger Bridge" imageSrc={"/images/posts2.jpg"}/>
+        <p>Connecting hearts. Bridging hunger. 🌍🍽️</p>
+     </div> 
       <div className="about-content">
         <section>
-          <h2>Our Mission</h2>
+          <h2>🎯Our Mission</h2>
           <p>
             At HungerBridge, our mission is to eliminate food waste and fight hunger by
             connecting donors with communities in need. Every meal saved is a life touched.
@@ -22,7 +20,7 @@ const AboutUs = () => {
         </section>
 
         <section>
-          <h2>Who We Are</h2>
+          <h2>👥Who We Are</h2>
           <p>
             We are a group of passionate volunteers, developers, and social workers committed to building a
             sustainable bridge between surplus and scarcity. HungerBridge enables anyone to contribute
@@ -31,7 +29,7 @@ const AboutUs = () => {
         </section>
 
         <section>
-          <h2>What We Do</h2>
+          <h2>💡What We Do</h2>
           <p>
             We use technology to streamline food donation. Our platform allows individuals, restaurants,
             and businesses to donate surplus food directly to nearby NGOs and shelters.
@@ -39,7 +37,7 @@ const AboutUs = () => {
         </section>
 
         <section>
-          <h2>Get Involved</h2>
+          <h2>🤝Get Involved</h2>
           <p>
             Whether you're a donor, volunteer, or NGO, your role matters. Join our cause today and help
             us nourish the world—one plate at a time.

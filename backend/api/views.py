@@ -328,7 +328,7 @@ class RequestViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
     filterset_class = RequestFilter
-    
+    lookup_field = 'request_id'
     # These fields will be used in ?status= and ?priority=
     filterset_fields = ['status', 'priority']
 

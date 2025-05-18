@@ -1,4 +1,4 @@
-.about-container {
+/* .about-container {
   font-family: 'Open Sans', sans-serif;
   min-height: 100vh;
   background: #f9f9f9;
@@ -6,7 +6,7 @@
   background-image: url(/images/contactbg.avif);
   background-repeat: no-repeat;
   background-size: cover;
-}
+} */
 
 .about-hero h1 {
   font-size: 3rem;
@@ -18,7 +18,7 @@
   font-weight: 300;
 }
 
-.about-content {
+/* .about-content {
   max-width: 700px;
   margin: auto;
   margin-top: 20px;
@@ -28,10 +28,38 @@
   border-radius: 20px;
   border:2px solid #2e7d32 ;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  
+} */
+.about-container {
+  font-family: 'Open Sans', sans-serif;
+  min-height: 100vh;
+  background: #f9f9f9;
+  margin: 0;
+  background-image: url(/images/contactbg.avif);
+  background-repeat: no-repeat;
+  background-size: cover;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 20px;
 }
+
+.about-content {
+  width: 100%;
+  max-width: 700px;
+  background: white;
+  padding: 30px;
+  border-radius: 20px;
+  border: 2px solid #2e7d32;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  animation: fadeIn 1.2s ease-in;
+}
+
+
 
 .about-content section {
   margin-bottom: 30px;
+  
 }
 
 .about-content h2 {
@@ -43,4 +71,76 @@
   font-size: 1rem;
   color: #444;
   line-height: 1.6;
+}
+.about-hero {
+  text-align: center;
+  color: #1b5e20; /* deep green text */
+  width: 100%;
+  max-width: 100%;
+  background: linear-gradient(115deg, #caf6cc, #ffffff); /* soft green to white */
+  padding: 40px 20px 20px;
+  border-radius: 20px;
+  margin-bottom: 20px;
+  border: 2px solid #2e7d32;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+
+
+.about-hero h1 {
+  font-size: 3rem;
+  margin-bottom: 10px;
+  color: #2e7d32;
+  text-shadow: 1px 1px 0 #ffffff; 
+}
+
+.about-hero p {
+  font-size: 1.2rem;
+  font-style: italic;
+}
+
+/* Fade-in animation */
+.fade-in {
+  animation: fadeIn 1.2s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+hr {
+  border: none;
+  border-top: 1px solid #e0e0e0;
+  margin: 20px 0;
+}
+
+/* CTA styles */
+.cta {
+  text-align: center;
+  margin-top: 30px;
+}
+
+.cta-button {
+  background-color: #28a745;
+  color: white;
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+  font-weight: bold;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
+}
+
+.cta-button:hover {
+  background-color: #1f7c32;
+}
+@media (max-width: 768px) {
+  .about-hero, .about-content {
+    padding: 20px;
+    border-radius: 12px;
+  }
+
+  .about-hero h1 {
+    font-size: 2.2rem;
+  }
 }

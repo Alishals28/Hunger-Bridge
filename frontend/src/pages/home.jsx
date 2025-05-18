@@ -6,7 +6,7 @@ const Home = () => {
   return (
     <>
       <Navbar />
-      <header>
+      <header class="head">
         <video autoPlay muted loop playsInline>
           <source src="/videos/vid.mp4" type="video/mp4" />
           Your browser does not support the video tag.

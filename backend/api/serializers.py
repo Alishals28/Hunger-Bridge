@@ -145,7 +145,9 @@ class RequestSerializer(serializers.ModelSerializer):
             'food_description',
             'volunteer_or_ngo_name',
         ]
-        read_only_fields = ['request_id', 'ngo', 'volunteer', 'donation', 'requested_at', 'request_description','donation_description','ngo_name','volunteer_name','food_description', 'volunteer_or_ngo_name']
+        read_only_fields = ['request_id', 'ngo', 'volunteer', 'donation', 'requested_at', 
+                            'request_description',
+                            'donation_description','ngo_name','volunteer_name','food_description', 'volunteer_or_ngo_name']
 
     def get_food_description(self, obj):
         return obj.donation.food_description if obj.donation else None
@@ -159,7 +161,8 @@ class RequestSerializer(serializers.ModelSerializer):
         if obj.volunteer:
             return f"{obj.volunteer.first_name} {obj.volunteer.last_name}".strip()
         return None
-
+    def get_donation_description(self, obj):
+        return obj.donation.food_description if obj.donation else None
     def get_volunteer_or_ngo_name(self, obj):
         if obj.volunteer:
             first = obj.volunteer.first_name or ""
@@ -175,7 +178,9 @@ class RequestSerializer(serializers.ModelSerializer):
             return full_name if full_name else None
         
         return None
-
+    def get_request_description(self, obj):
+        # Return a description string for this request
+        return obj.request_description
     def update(self, instance, validated_data):
         """
         Allow volunteer assignment in the claim request view.
@@ -185,6 +190,12 @@ class RequestSerializer(serializers.ModelSerializer):
         instance.status = validated_data.get('status', instance.status)
         instance.save()
         return instance
+    def partial_update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(serializer.data)
 
 # Transaction Serializer
 class TransactionSerializer(serializers.ModelSerializer):
