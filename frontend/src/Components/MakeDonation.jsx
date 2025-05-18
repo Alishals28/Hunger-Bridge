@@ -9,6 +9,8 @@ const MakeDonation = () => {
     quantity: '',
     pickup_time: '',
     status: 'Available',
+    pickup_location: '',
+
   });
 
   const navigate = useNavigate();
@@ -100,6 +102,17 @@ const MakeDonation = () => {
               </option>
             ))}
           </select>
+        </label>
+        <label>
+          Pickup Location:
+          <input
+            type="text"
+            name="pickup_location"
+            value={formData.pickup_location || ''}
+            onChange={handleChange}
+            required
+            placeholder="Enter pickup location"
+          />
         </label>
 
         <button type="submit">Submit Donation</button>

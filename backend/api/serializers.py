@@ -104,12 +104,12 @@ class VolunteerSerializer(serializers.ModelSerializer):
 #         return instance
 
 
-class DonationSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField(source='donation_id', read_only=True)
+# class DonationSerializer(serializers.ModelSerializer):
+#     id = serializers.IntegerField(source='donation_id', read_only=True)
     
-    class Meta:
-        model = Donation
-        fields = ['id','food_description', 'quantity', 'pickup_time', 'status']  # Include all required fields
+#     class Meta:
+#         model = Donation
+#         fields = ['id','food_description', 'quantity', 'pickup_time', 'status']  # Include all required fields
         
 class RequestSerializer(serializers.ModelSerializer):
     ngo = UserSerializer(read_only=True)
