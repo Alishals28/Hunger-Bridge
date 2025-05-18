@@ -34,4 +34,5 @@ urlpatterns += [
     path('test-mongo/', test_mongo_connection, name='test_mongo_connection'),
     path('test-neo4j/', test_neo4j_connection, name='test_neo4j_connection'),
     path('requests/', RequestViewSet.as_view({'get':'list'}), name='request-set'),
+    path('donations/', DonationViewSet.as_view({'get':'list'}), name='donation-set'),
 ]

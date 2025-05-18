@@ -50,7 +50,8 @@ class UserViewSet(viewsets.ModelViewSet):
 class DonationViewSet(viewsets.ModelViewSet):
     queryset = Donation.objects.none()
     serializer_class = DonationSerializer
-    permission_classes = [IsAuthenticated]
+    fields = '__all__'
+    permission_classes = [AllowAny]
     filterset_fields = ['status', 'quantity']
     search_fields = ['food_description', 'donor__first_name', 'donor__email']
 
@@ -67,11 +68,19 @@ class DonationViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
+
+        # Anonymous users
+        if not user.is_authenticated:
+            return Donation.objects.all()
+
+        # Authenticated users
         if user.user_type == 'Donor':
             return Donation.objects.filter(donor=user)
         elif user.user_type in ['NGO', 'Volunteer']:
             return Donation.objects.filter(status='Available')
+
         return Donation.objects.none()
+
 
 # NGO ViewSet
 class NGOViewSet(viewsets.ModelViewSet):
