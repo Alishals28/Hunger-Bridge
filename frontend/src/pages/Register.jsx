@@ -22,26 +22,37 @@ const Register = () => {
       [e.target.name]: e.target.value
     }));
   };
+const handleRegister = async (e) => {
+  e.preventDefault();
+  setError('');
 
-  const handleRegister = async (e) => {
-    e.preventDefault();
+  try {
+    const res = await fetch('http://127.0.0.1:8000/api/register/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(formData),
+    });
 
-    try {
-      const res = await fetch('http://127.0.0.1:8000/api/register/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      });
+    const contentType = res.headers.get('content-type');
 
-      const data = await res.json();
-
-      if (!res.ok) throw new Error(data.detail || 'Registration failed');
-
-      navigate('/login');
-    } catch (err) {
-      setError(err.message);
+    if (!res.ok) {
+      if (contentType && contentType.includes('application/json')) {
+        const data = await res.json();
+        throw new Error(data.detail || 'Registration failed');
+      } else {
+        const text = await res.text();
+        throw new Error('Server error: ' + text.slice(0, 100));
+      }
     }
-  };
+
+    // If registration is successful
+    navigate('/login');
+  } catch (err) {
+    setError(err.message);
+  }
+};
 
   return (
     <div className="register-container">

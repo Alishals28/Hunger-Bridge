@@ -49,10 +49,11 @@
     padding: 0.5rem 1rem;
     border-radius: 6px;
   }
-  nav a:hover {
-    background-color: #0077cc;
+  /* nav a:hover {
+    background-color: #289e44df;
+    color: #e6f4ea;
     color: #fff;
-  }
+  } */
   .logo {
     display: flex;
     align-items: center;
@@ -82,10 +83,10 @@
     padding: 0.5rem 1rem;
     border-radius: 6px;
   }
-  nav a:hover {
-    background-color: #0077cc;
+  /* nav a:hover { */
+    /* background-color: #0bb01b;
     color: #fff;
-  }
+  } */
   header {
     position: relative;
     height: 100vh;
