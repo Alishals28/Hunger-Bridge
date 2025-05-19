@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import './VolunteerDashboard.css';
+import './NgoDashboard.css';
 import { FaCheckCircle, FaTruck, FaClock, FaTimesCircle, FaExclamationCircle, FaEdit, FaSave } from 'react-icons/fa';
 
 const statusIcons = {
@@ -13,7 +13,7 @@ const statusIcons = {
 
 const statusOptions = ['Picked Up', 'Delivered', 'Cancelled'];
 
-const VolunteerDashboard = () => {
+const NgoDashboard = () => {
   const [requests, setRequests] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [editingStatus, setEditingStatus] = useState('');
@@ -30,10 +30,10 @@ const VolunteerDashboard = () => {
       const response = await axios.get('http://localhost:8000/api/requests/', {
         headers: { Authorization: `Bearer ${token}` },
       });
-      const filtered = response.data.filter((r) => r.volunteer_name?.toLowerCase().includes(firstName.toLowerCase()));
+      const filtered = response.data.filter((r) => r.ngo_name?.toLowerCase().includes(firstName.toLowerCase()));
       setRequests(filtered);
     } catch (error) {
-      console.error('Error fetching volunteer requests:', error);
+      console.error('Error fetching NGO requests:', error);
     }
   };
 
@@ -70,15 +70,15 @@ const VolunteerDashboard = () => {
     <div className="dashboard-container">
       <header className="dashboard-welcome">
         <div className="welcome-content">
-          <h1>🙌 Welcome, <span>{firstName}</span>!</h1>
-          <p>Here are the requests assigned to you.</p>
+          <h1>🌟 Welcome, <span>{firstName}</span>!</h1>
+          <p>Here are the food donation requests you've created.</p>
         </div>
       </header>
 
       <section className="donations-list">
-        <h3>Your Assigned Requests</h3>
+        <h3>Your Created Requests</h3>
         {requests.length === 0 ? (
-          <p>No requests assigned yet.</p>
+          <p>No requests created yet.</p>
         ) : (
           <div className="donation-grid">
             {requests.map((req) => (
@@ -105,7 +105,7 @@ const VolunteerDashboard = () => {
                     <p><strong>Status:</strong> {req.status}</p>
                   )}
 
-                  <p><strong>NGO:</strong> {req.ngo_name}</p>
+                  <p><strong>Volunteer:</strong> {req.volunteer_name || 'Not Assigned'}</p>
                   <p><strong>Description:</strong> {req.request_description}</p>
                 </div>
                 <div className="card-actions">
@@ -133,4 +133,4 @@ const VolunteerDashboard = () => {
   );
 };
 
-export default VolunteerDashboard;
+export default NgoDashboard;

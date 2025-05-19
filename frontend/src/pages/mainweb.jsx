@@ -13,41 +13,86 @@ import MakeDonation from '../Components/MakeDonation';
 import ProtectedRoute from '../Components/ProtectedRoute';
 import Donornav from '../Components/Donornav';
 import Requests from './Request';
-function Main() {
-  const location = useLocation();
-  const donorPaths = ['/donor-dashboard','/requests', '/make-donations'];
-  const showDonorNav = donorPaths.includes(location.pathname);
+import VolunteerDashboard from './VolunteerDashboard';
+import Volunteernav from '../Components/Volunteernav'; // Make sure this path is correct
+import VolunteerPosts from './VolunteerPost';
+import VolunteerPostCard from '../Components/VolunteerPostCard';
 
-  return (
-    
-    <>
-    
-      {showDonorNav ? <Donornav /> : <NavBar />}
-      <Routes>
-         <Route
-    path="/donor-dashboard"
-    element={
-      <ProtectedRoute allowedUser="Donor">
-        <DonorDashboard />
-      </ProtectedRoute>
-    }
-  />
-  <Route
-    path="/make-donations"
-    element={
-      <ProtectedRoute allowedUser="Donor">
-        <MakeDonation />
-      </ProtectedRoute>
-    }
-  />
-  <Route
-    path="/requests"
-    element={
-      <ProtectedRoute allowedUser="Donor">
-        <Requests />
-      </ProtectedRoute>
-    }
-  />
+// import AssignedRequests from './AssignedRequests';      // Ensure this component exists and is correctly named
+
+function Main() {
+
+
+const location = useLocation();
+
+const donorPaths = ['/donor-dashboard', '/requests', '/make-donations'];
+const volunteerPaths = ['/volunteer-dashboard', '/assigned-requests', '/volunteer-post'];
+
+const showDonorNav = donorPaths.includes(location.pathname);
+const showVolunteerNav = volunteerPaths.includes(location.pathname);
+
+return (
+  <>
+    {showDonorNav ? (
+      <Donornav />
+    ) : showVolunteerNav ? (
+      <Volunteernav />
+    ) : (
+      <NavBar />
+    )}
+
+    <Routes>
+      {/* Donor Routes */}
+      <Route
+        path="/donor-dashboard"
+        element={
+          <ProtectedRoute allowedUser="Donor">
+            <DonorDashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/make-donations"
+        element={
+          <ProtectedRoute allowedUser="Donor">
+            <MakeDonation />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/requests"
+        element={
+          <ProtectedRoute allowedUser="Donor">
+            <Requests />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Volunteer Routes */}
+      <Route
+        path="/volunteer-dashboard"
+        element={
+          <ProtectedRoute allowedUser="Volunteer">
+            <VolunteerDashboard />
+          </ProtectedRoute>
+        }
+      />
+      {/* <Route
+        path="/volunteer-post"
+        element={
+          <ProtectedRoute allowedUser="Volunteer">
+            <AssignedRequests />
+          </ProtectedRoute>
+        }
+      />
+    */}
+ 
+<Route path="/volunteer-post" element={
+  <ProtectedRoute allowedUser="Volunteer">
+    <VolunteerPosts />
+  </ProtectedRoute>
+} />
+
         <Route path="/donor-dashboard" element={<DonorDashboard />} />
         <Route path="/make-donations" element={<MakeDonation />} />
         <Route path="/requests" element={<Requests />} />
@@ -58,6 +103,9 @@ function Main() {
         <Route path="/post" element={<Post />} />
         <Route path="/aboutus" element={<AboutUs />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/volunteer-dashboard" element={<VolunteerDashboard />} />
+        <Route path="/volunteer-post" element={<VolunteerPosts/>} />
+
       </Routes>
       <Footer/>
     </>

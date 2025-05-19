@@ -1,0 +1,63 @@
+.nav-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #ffffff;
+  padding: 1rem 2rem;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  color: #2196f3; /* blue theme for volunteers */
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.material-icons {
+  font-size: 2rem;
+  margin-right: 0.5rem;
+  color: white;
+}
+
+.bridge {
+  color: white;
+}
+
+.logout-button {
+  background-color: #2196f3;
+  color: #fdfdfd;
+  border: none;
+  padding: 0.6rem 1rem;
+  font-size: 1rem;
+  font-weight: 500;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.logout-button:hover {
+  background-color: #64b5f6;
+  color: white;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-left: auto;
+  padding-right: 20px;
+}
+
+.donation-link {
+  color: #2196f3;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.donation-link:hover {
+  color: #64b5f6;
+}

@@ -1,0 +1,6 @@
+/* VolunteerDashboard.css */
+@import './DonorDashboard.css'; /* Or duplicate and rename the file to reuse */
+
+.dashboard-welcome h1 span {
+  color: #1565c0; /* Different accent color for Volunteer */
+}

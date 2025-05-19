@@ -1,0 +1,26 @@
+@import './VolunteerDashboard.css'; /* Optional reuse */
+
+.dashboard-welcome h1 span {
+  color: #8e24aa; /* Purple accent for NGO */
+}
+
+/* Additional customization for NGO dashboard */
+.save-button {
+  background-color: #4caf50;
+  color: white;
+}
+
+.cancel-button {
+  background-color: #f44336;
+  color: white;
+}
+
+.edit-button {
+  background-color: #2196f3;
+  color: white;
+}
+
+.status-select {
+  margin-top: 8px;
+  padding: 4px;
+}
