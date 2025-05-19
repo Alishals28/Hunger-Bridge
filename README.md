@@ -10,117 +10,248 @@ Hunger Bridge is a food redistribution platform that connects donors, NGOs, and 
 
 ---
 
-## 🔧 Project Setup
+# 🍽️ Hunger Bridge
 
-### 1. Clone the Repository
+Hunger Bridge is a full-stack food redistribution platform that connects **donors** with **NGOs** and facilitates **volunteers** to deliver surplus food efficiently using **route optimization** and **real-time notifications**. Built with Django, React, PostgreSQL, MongoDB, and Neo4j, it demonstrates advanced database integration and backend architecture.
 
+---
+
+## 📑 Table of Contents
+
+- [About the Project](#about-the-project)
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Architecture Overview](#architecture-overview)
+- [Getting Started](#getting-started)
+- [Environment Variables](#environment-variables)
+- [API Documentation](#api-documentation)
+- [Database Schemas](#database-schemas)
+- [Contributing](#contributing)
+- [License](#license)
+
+---
+
+## 📌 About the Project
+
+**Hunger Bridge** addresses the food wastage crisis by:
+- Enabling donors (individuals or restaurants) to list surplus food
+- Allowing NGOs to request available donations
+- Empowering volunteers to claim requests and deliver food
+- Using route optimization to minimize delivery distance
+- Sending real-time notifications about system events
+
+---
+
+## ✅ Features
+
+- Custom Django User model with roles (Donor, NGO, Volunteer, Admin)
+- Donation and Request workflows
+- Volunteer claiming and delivery flow
+- Transaction tracking and feedback system
+- Notifications using MongoDB
+- Route optimization using Neo4j
+- Secure authentication using JWT
+
+---
+
+## 🧰 Tech Stack
+
+- **Backend:** Django REST Framework
+- **Frontend:** React (not covered in this repo)
+- **Relational DB:** PostgreSQL
+- **NoSQL DB:** MongoDB (notifications)
+- **Graph DB:** Neo4j (route optimization)
+- **Geocoding:** Nominatim / OpenStreetMap API
+
+---
+
+## 🏗️ Architecture Overview
+
+```
+            +--------------------------+
+            |      React Frontend      |
+            +------------+-------------+
+                         |
+                         v
+           +-----------------------------+
+           |       Django REST API       |
+           +-------------+---------------+
+                         |
+         +---------------+---------------+-----------------+
+         |                               |                 |
+         v                               v                 v
++----------------+          +-------------------+    +----------------+
+|   PostgreSQL   |          |     MongoDB       |    |     Neo4j      |
+|  (Main DB)     |          | (Notifications)   |    | (Routes Graph) |
++----------------+          +-------------------+    +----------------+
+```
+
+---
+
+## 🚀 Getting Started
+
+Follow these instructions to set up the project locally.
+
+### Prerequisites
+
+- Python 3.9+
+- PostgreSQL
+- MongoDB
+- Neo4j Desktop or AuraDB
+- Node.js & npm (if using React frontend)
+- [Poetry](https://python-poetry.org/) or `pipenv` (optional)
+
+### Installation Steps
+
+1. **Clone the repo**
 ```bash
-git clone https://github.com/your-username/hunger-bridge.git
-cd hunger-bridge/backend
-2. Create Virtual Environment
-bash
-Copy
-Edit
-python -m venv venv
-venv\Scripts\activate   # Windows
-3. Install Dependencies
-bash
-Copy
-Edit
-pip install djangorestframework-simplejwt
-4. Create .env for Database Settings (if applicable)
-env
-Copy
-Edit
-DB_NAME=hungerbridge
-DB_USER=yourusername
-DB_PASSWORD=yourpassword
-DB_HOST=localhost
-DB_PORT=5432
-5. Run Migrations
-bash
-Copy
-Edit
+git clone https://github.com/yourusername/hunger-bridge.git
+cd hunger-bridge
+```
+
+2. **Set up a Python virtual environment**
+```bash
+python -m venv env
+source env/bin/activate  # Windows: env\Scripts\activate
+```
+
+3. **Install dependencies**
+```bash
+pip install -r requirements.txt
+```
+
+4. **Set up PostgreSQL**
+- Create a database:
+```sql
+CREATE DATABASE hungerbridge;
+```
+- Update `DATABASES` in `settings.py` with your credentials.
+
+5. **Run migrations**
+```bash
 python manage.py makemigrations
 python manage.py migrate
-6. Create Superuser
-bash
-Copy
-Edit
+```
+
+6. **Create a superuser**
+```bash
 python manage.py createsuperuser
-7. Start the Server
-bash
-Copy
-Edit
+```
+
+7. **Run the backend server**
+```bash
 python manage.py runserver
-🔐 Authentication
-We use JWT for token-based authentication.
+```
 
-Obtain Token
-POST /api/token/
+---
 
-json
-Copy
-Edit
-{
-  "email": "user@example.com",
-  "password": "yourpassword"
-}
-Refresh Token
-POST /api/token/refresh/
+## 🔐 Environment Variables
 
-📄 Models Implemented
-✅ User (Custom)
-Extends AbstractBaseUser, PermissionsMixin
+Create a `.env` file in the project root and configure the following:
 
-Fields: email, first_name, last_name, user_type (Donor, NGO, Volunteer)
+```
+SECRET_KEY=your_secret_key
+DEBUG=True
+DB_NAME=hungerbridge
+DB_USER=your_db_user
+DB_PASSWORD=your_db_password
+DB_HOST=localhost
+DB_PORT=5432
 
-✅ Donation
-Donated food items by a Donor
+MONGODB_URI=mongodb://localhost:27017
+NEO4J_URI=bolt://localhost:7687
+NEO4J_USER=neo4j
+NEO4J_PASSWORD=your_neo4j_password
 
-Fields: food_description, quantity, pickup_time, status
+GEOCODING_API_URL=https://nominatim.openstreetmap.org
+```
 
-✅ Request
-Created by NGOs for a specific donation
+You may also use `python-decouple` or `django-environ` to manage settings cleanly.
 
-Fields: donation, ngo, volunteer, priority, status
+---
 
-🚀 API Endpoints (Implemented)
-🔹 Users
-POST /api/register/ - Register new users
+## 📡 API Documentation
 
-POST /api/token/ - Login & get JWT
+- Base URL: `http://localhost:8000/api/`
 
-GET /api/profile/ - Get current user's profile
+Example Endpoints:
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/users/register/` | Register a new user |
+| `POST` | `/users/login/` | JWT login |
+| `GET`  | `/donations/` | List all donations |
+| `POST` | `/donations/` | Create donation (Donor only) |
+| `POST` | `/requests/` | Create request (NGO only) |
+| `POST` | `/requests/{id}/claim/` | Claim a request (Volunteer only) |
+| `POST` | `/requests/{id}/deliver/` | Mark as delivered |
+| `GET`  | `/routes/optimize/?donor=X&ngo=Y` | Get optimized route |
+| `GET`  | `/transactions/` | List transactions |
 
-🔹 Donations (Donor only)
-POST /api/donations/ - Create a donation
+---
 
-GET /api/donations/ - List donor's donations
+## 🗃️ Database Schemas
 
-🔹 Requests
-POST /api/requests/ - NGO creates a request for a donation
+- **PostgreSQL:** User, Donation, NGO, Volunteer, Request, Transaction, Route
+- **MongoDB:** Notifications collection (event-based docs)
+- **Neo4j:** `Location` nodes with `CAN_DELIVER_TO` edges containing `distance` property
 
-GET /api/requests/ -
+---
 
-NGO: See own requests
+## 🤝 Contributing
 
-Volunteer: See unassigned requests (status = "Pending")
+Contributions are welcome! Please:
+- Fork the repo
+- Create a new branch (`feature/your-feature`)
+- Commit your changes
+- Open a Pull Request
 
-✅ Current Development Progress
- JWT Auth system with role-based permissions
+---
+## Neo4j
+Ensure your neo4j server is active and is running 
 
- Custom User model for different roles
+## 🖥️ Running the Frontend (React)
 
- Donation flow (Donor)
+Follow these steps to set up and run the React frontend:
 
- Request flow (NGO to assign available donations)
+### Prerequisites
 
- Filtering views based on user_type
+- Node.js (v16 or above recommended)
+- npm (comes with Node.js) or yarn
 
- Volunteer claim & delivery flow
+### Installation Steps
 
- Chat & Notification system (MongoDB)
+1. **Navigate to the frontend directory**
+   ```bash
+   cd frontend
+   ```
 
- Route optimization (Neo4j)
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+   or, if you use yarn:
+   ```bash
+   yarn install
+   ```
 
+3. **Start the development server**
+   ```bash
+   npm run dev
+   ```
+   or, if you use yarn:
+   ```bash
+   yarn dev
+   ```
+
+4. **Open your browser and go to**
+   ```
+   http://localhost:5173
+   ```
+   (or the port shown in your terminal)
+
+### Notes
+
+- Make sure your backend server is running and accessible at the API URLs expected by the frontend (default: `http://localhost:8000/api/`).
+- If you need to change the API base URL, update it in your frontend source code (commonly in an `.env` file or a config file).
+
+---
