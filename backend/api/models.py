@@ -158,9 +158,9 @@ class Request(models.Model):
     priority = models.CharField(max_length=20, choices=RequestPriority.choices)
     status = models.CharField(max_length=20, choices=RequestStatus.choices)
     requested_at = models.DateTimeField(auto_now_add=True)
-    def clean(self):
-        if not self.volunteer and not self.ngo:
-            raise ValidationError("At least one of volunteer or ngo must be set.")
+    # def clean(self):
+    #     if not self.volunteer and not self.ngo:
+    #         raise ValidationError("At least one of volunteer or ngo must be set.")
 
     def save(self, *args, **kwargs):
         self.full_clean()  # calls clean()

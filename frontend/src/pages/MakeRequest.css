@@ -1,0 +1,82 @@
+.request-form-container {
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 2rem;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.request-form-container h2 {
+  text-align: center;
+  color: #2d6a4f;
+  margin-bottom: 1.5rem;
+}
+
+.request-form label {
+  display: block;
+  margin-bottom: 1rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.request-form input,
+.request-form textarea,
+.request-form select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  margin-top: 0.5rem;
+  font-size: 1rem;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+
+.request-form input:focus,
+.request-form textarea:focus,
+.request-form select:focus {
+  border-color: #2d6a4f;
+  outline: none;
+}
+
+.request-form textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.request-form button {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: #3f9345;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 1.5rem;
+  transition: background-color 0.3s;
+}
+
+.request-form button:hover {
+  background-color: #1b4332;
+}
+.styled-dropdown {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 16px;
+  background-color: #f9f9f9;
+  width: 100%;
+  margin-top: 4px;
+  margin-bottom: 16px;
+  appearance: none;
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+
+.styled-dropdown:focus {
+  border-color: #007bff;
+  background-color: #fff;
+}

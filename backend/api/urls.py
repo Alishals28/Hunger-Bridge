@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import UserViewSet,DonationListCreateView ,RegisterView, DonationViewSet, NGOViewSet, VolunteerViewSet, RequestViewSet, TransactionViewSet, RouteViewSet,CustomTokenObtainPairView,test_notification, NotificationViewSet
+from .views import UserViewSet,DonationListCreateView ,make_request,RegisterView, DonationViewSet, NGOViewSet, VolunteerViewSet, RequestViewSet, TransactionViewSet, RouteViewSet,CustomTokenObtainPairView,test_notification, NotificationViewSet
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -35,4 +35,6 @@ urlpatterns += [
     path('test-neo4j/', test_neo4j_connection, name='test_neo4j_connection'),
     path('requests/', RequestViewSet.as_view({'get':'list'}), name='request-set'),
     path('donations/', DonationViewSet.as_view({'get':'list'}), name='donation-set'),
+    path('make-request/', make_request, name='make-request'),
+
 ]

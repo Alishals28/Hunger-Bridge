@@ -22,6 +22,7 @@ from .serializers import (
     NotificationSerializer,
     CustomTokenObtainPairSerializer,
     DonationSerializer,
+    Request_Serializer,
     TokenObtainPairSerializer
 )
 from .permissions import IsDonor, IsVolunteer, IsNGO, IsAdminUserType
@@ -578,10 +579,10 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 
 class RegisterView(APIView):
     permission_classes = [AllowAny]
+    
+   
     def post(self, request):
-
         serializer = RegisterSerializer(data=request.data)
-        permission_classes=[AllowAny]
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -638,6 +639,39 @@ def test_neo4j_connection(request):
 
     except Exception as e:
         return JsonResponse({"success": False, "error": str(e)})
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def make_request(request):
+    
+    print("Incoming request data:", request.data)
+    user = request.user
+    data = request.data.copy()
+    print('User id:', user.id)
+    print('User has volunteer:', hasattr(user, 'volunteer'))
+    if hasattr(user, 'volunteer'):
+        print('Volunteer id:', user.volunteer.volunteer_id)  # Volunteer model PK
+
+    if hasattr(user, 'volunteer') and user.volunteer is not None:
+        data['volunteer'] = user.volunteer.volunteer_id
+
+    # # Assign NGO or Volunteer based on user type
+    # if hasattr(user, 'ngo'):
+
+    #     data['ngo'] = user.id  
+    # elif hasattr(user, 'volunteer'):
+    #     data['volunteer'] = user.id  
+    else:
+        return Response({"detail": "User must be an NGO or Volunteer."}, status=status.HTTP_400_BAD_REQUEST)
+
+    serializer = Request_Serializer(data=data)
+
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    else:
+        print(serializer.errors)  # Debugging
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # class DonationViewSet(viewsets.ModelViewSet):
 #     queryset = Donation.objects.all()

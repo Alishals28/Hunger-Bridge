@@ -15,7 +15,18 @@ class RegisterSerializer(serializers.ModelSerializer):
         user = User(**validated_data)
         user.set_password(password)
         user.save()
+
+        if user.user_type == 'Volunteer':
+            Volunteer.objects.create(
+                user=user,
+                availability_status='Available',  # hardcoded/default values
+                preferred_area='Default Area',
+                current_location='Unknown'
+            )
+
         return user
+    
+
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
@@ -197,6 +208,12 @@ class RequestSerializer(serializers.ModelSerializer):
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
         return Response(serializer.data)
+
+class Request_Serializer(serializers.ModelSerializer):
+    class Meta:
+        model = Request
+        fields = '__all__'
+
 
 # Transaction Serializer
 class TransactionSerializer(serializers.ModelSerializer):

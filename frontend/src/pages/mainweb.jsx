@@ -17,6 +17,7 @@ import VolunteerDashboard from './VolunteerDashboard';
 import Volunteernav from '../Components/Volunteernav'; // Make sure this path is correct
 import VolunteerPosts from './VolunteerPost';
 import VolunteerPostCard from '../Components/VolunteerPostCard';
+import MakeRequest from './MakeRequest';
 
 // import AssignedRequests from './AssignedRequests';      // Ensure this component exists and is correctly named
 
@@ -86,6 +87,14 @@ return (
         }
       />
     */}
+    <Route
+        path="/make-request"
+        element={
+          <ProtectedRoute allowedUser="Volunteer">
+            <MakeRequest />
+          </ProtectedRoute>
+        }
+      />
  
 <Route path="/volunteer-post" element={
   <ProtectedRoute allowedUser="Volunteer">

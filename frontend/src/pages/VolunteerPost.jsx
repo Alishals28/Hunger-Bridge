@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import VolunteerPostCard from "../Components/VolunteerPostCard";
-import './posts.css'; // reuse existing styling
+import './posts.css';
+import { useNavigate } from "react-router-dom";
 
 const VolunteerPosts = () => {
   const [donations, setDonations] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchDonations = async () => {
@@ -23,34 +25,9 @@ const VolunteerPosts = () => {
     fetchDonations();
   }, []);
 
-  const handleRequest = async (donation) => {
-    try {
-      const response = await fetch(`http://localhost:8000/api/request-donation/`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`, // Adjust if needed
-        },
-        body: JSON.stringify({ donation_id: donation.id }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to request donation");
-      }
-
-      alert("Request sent successfully!");
-
-      // Optionally refetch or update UI
-      setDonations((prevDonations) =>
-        prevDonations.map((d) =>
-          d.id === donation.id ? { ...d, status: "requested" } : d
-        )
-      );
-    } catch (error) {
-      console.error("Request error:", error);
-      alert("Error requesting donation: " + error.message);
-    }
+  const handleRequest = (donation) => {
+    // Navigate to MakeRequest page with donation ID as query param or path param
+    navigate(`/make-request?donation_id=${donation.id}`);
   };
 
   return (

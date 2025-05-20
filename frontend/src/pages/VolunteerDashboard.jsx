@@ -28,14 +28,17 @@ const VolunteerDashboard = () => {
   const fetchRequests = async () => {
     try {
       const response = await axios.get('http://localhost:8000/api/requests/', {
+        
         headers: { Authorization: `Bearer ${token}` },
       });
-      const filtered = response.data.filter((r) => r.volunteer_name?.toLowerCase().includes(firstName.toLowerCase()));
+      const volunteerId = localStorage.getItem('user_id');
+      const filtered = response.data.filter((r) => r.volunteer === Number(volunteerId));
       setRequests(filtered);
     } catch (error) {
       console.error('Error fetching volunteer requests:', error);
     }
   };
+  
 
   const handleEdit = (id, currentStatus) => {
     setEditingId(id);
